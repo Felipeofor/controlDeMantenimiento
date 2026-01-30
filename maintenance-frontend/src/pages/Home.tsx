@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Navbar } from '../components/Navbar';
 import { VehicleCard } from '../components/VehicleCard';
-import { RotateCcw, Search } from 'lucide-react';
+import { RotateCcw, Search, Plus, X, Gauge } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 
-export const Home: React.FC<{ onSelectVehicle: (v: any) => void }> = ({ onSelectVehicle }) => {
+export const Home: React.FC = () => {
+  const navigate = useNavigate();
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -132,7 +134,7 @@ export const Home: React.FC<{ onSelectVehicle: (v: any) => void }> = ({ onSelect
                 v.marca.toLowerCase().includes(searchTerm.toLowerCase())
               )
               .map(v => (
-                <div key={v.id} onClick={() => onSelectVehicle(v)}>
+                <div key={v.id} onClick={() => navigate(`/vehicle/${v.id}`)}>
                   <VehicleCard {...v} />
                 </div>
               ))

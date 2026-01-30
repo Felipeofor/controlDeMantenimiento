@@ -2,15 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Navbar } from '../components/Navbar';
 import { MaintenanceItem } from '../components/MaintenanceItem';
 import { ArrowLeft, Plus, X, Gauge } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
 import api from '../lib/api';
 
-interface VehicleDetailsProps {
-  vehicle: any;
-  onBack: () => void;
-}
-
-export const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicle: initialVehicle, onBack }) => {
-  const [vehicle, setVehicle] = useState(initialVehicle);
+export const VehicleDetails: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [vehicle, setVehicle] = useState<any>(null);
   const [maintenances, setMaintenances] = useState<any[]>([]);
   const [totalCost, setTotalCost] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -18,7 +16,7 @@ export const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicle: initial
   const [isMaintModalOpen, setIsMaintModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   
-  const [newMileage, setNewMileage] = useState(vehicle.kilometrajeActual);
+  const [newMileage, setNewMileage] = useState(0);
   const [newMaint, setNewMaint] = useState({
     tipoMantenimiento: 'CAMBIO_ACEITE',
     descripcion: '',
@@ -28,12 +26,15 @@ export const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicle: initial
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [mResponse, cResponse] = await Promise.all([
-        api.get(`/maintenances/vehicle/${vehicle.id}`),
-        api.get(`/vehicles/${vehicle.id}/total-cost`)
+      const [vResponse, mResponse, cResponse] = await Promise.all([
+        api.get(`/vehicles/${id}`),
+        api.get(`/maintenances/vehicle/${id}`),
+        api.get(`/vehicles/${id}/total-cost`)
       ]);
+      setVehicle(vResponse.data);
       setMaintenances(mResponse.data);
       setTotalCost(cResponse.data.totalCost);
+      setNewMileage(vResponse.data.kilometrajeActual);
     } catch (error) {
       console.error('Error fetching data', error);
     } finally {
@@ -43,7 +44,7 @@ export const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicle: initial
 
   useEffect(() => {
     fetchData();
-  }, [vehicle.id]);
+  }, [id]);
 
   const handleUpdateMileage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,13 +108,21 @@ export const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicle: initial
     }
   };
 
+  if (loading || !vehicle) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-400 text-sm italic animate-pulse">Consultando base de datos...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 pt-20 md:pt-24 pb-12 px-4 md:px-12 text-gray-900">
       <Navbar />
       
       <main className="max-w-5xl mx-auto">
         <button 
-          onClick={onBack}
+          onClick={() => navigate('/')}
           className="flex items-center gap-2 text-gray-400 hover:text-black transition-colors mb-6 md:mb-12 group"
         >
           <ArrowLeft size={18} className="transform group-hover:-translate-x-1 transition-transform" />
