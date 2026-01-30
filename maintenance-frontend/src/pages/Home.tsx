@@ -9,6 +9,7 @@ export const Home: React.FC<{ onSelectVehicle: (v: any) => void }> = ({ onSelect
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [newVehicle, setNewVehicle] = useState({
     patente: '',
     marca: '',
@@ -43,14 +44,28 @@ export const Home: React.FC<{ onSelectVehicle: (v: any) => void }> = ({ onSelect
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Simple validation
+    if (newVehicle.patente.trim().length < 6) {
+      alert('La patente es demasiado corta.');
+      return;
+    }
+    if (newVehicle.anio < 1900 || newVehicle.anio > new Date().getFullYear() + 1) {
+      alert('Año inválido.');
+      return;
+    }
+
     try {
+      setSubmitting(true);
       await api.post('/vehicles', newVehicle);
       setIsRegisterModalOpen(false);
       setNewVehicle({ patente: '', marca: '', modelo: '', anio: new Date().getFullYear(), kilometrajeActual: 0 });
       fetchVehicles();
     } catch (error) {
       console.error('Error registering vehicle', error);
-      alert('Error al registrar el vehículo. Verifique los datos.');
+      alert('Error al registrar el vehículo. Verifique que la patente no esté ya registrada.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -137,7 +152,7 @@ export const Home: React.FC<{ onSelectVehicle: (v: any) => void }> = ({ onSelect
                   onClick={() => setIsRegisterModalOpen(false)}
                   className="text-gray-400 hover:text-black transition-colors"
                 >
-                  <Search size={24} className="rotate-45" /> 
+                  <RotateCcw size={24} className="rotate-45" /> 
                 </button>
               </div>
 
@@ -198,8 +213,12 @@ export const Home: React.FC<{ onSelectVehicle: (v: any) => void }> = ({ onSelect
                   </div>
                 </div>
 
-                <button type="submit" className="kavak-button kavak-button-primary w-full py-4 uppercase tracking-[.2em] font-black text-xs">
-                  Guardar Vehículo
+                <button 
+                  type="submit" 
+                  disabled={submitting}
+                  className="kavak-button kavak-button-primary w-full py-4 uppercase tracking-[.2em] font-black text-xs disabled:opacity-50"
+                >
+                  {submitting ? 'Guardando...' : 'Guardar Vehículo'}
                 </button>
               </form>
             </div>

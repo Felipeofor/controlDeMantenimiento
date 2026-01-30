@@ -12,9 +12,11 @@ interface VehicleDetailsProps {
 export const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicle: initialVehicle, onBack }) => {
   const [vehicle, setVehicle] = useState(initialVehicle);
   const [maintenances, setMaintenances] = useState<any[]>([]);
+  const [totalCost, setTotalCost] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isMileageModalOpen, setIsMileageModalOpen] = useState(false);
   const [isMaintModalOpen, setIsMaintModalOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   
   const [newMileage, setNewMileage] = useState(vehicle.kilometrajeActual);
   const [newMaint, setNewMaint] = useState({
@@ -23,58 +25,82 @@ export const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicle: initial
     costoEstimado: 0
   });
 
-  const fetchMaintenances = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/maintenances/vehicle/${vehicle.id}`);
-      setMaintenances(response.data);
+      const [mResponse, cResponse] = await Promise.all([
+        api.get(`/maintenances/vehicle/${vehicle.id}`),
+        api.get(`/vehicles/${vehicle.id}/total-cost`)
+      ]);
+      setMaintenances(mResponse.data);
+      setTotalCost(cResponse.data.totalCost);
     } catch (error) {
-      console.error('Error fetching maintenances', error);
+      console.error('Error fetching data', error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchMaintenances();
+    fetchData();
   }, [vehicle.id]);
 
   const handleUpdateMileage = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (newMileage < vehicle.kilometrajeActual) {
+      alert('El nuevo kilometraje no puede ser menor al actual.');
+      return;
+    }
+    
     try {
+      setSubmitting(true);
       const response = await api.patch(`/vehicles/${vehicle.id}/mileage`, { nuevoKilometraje: newMileage });
       setVehicle(response.data);
       setIsMileageModalOpen(false);
     } catch (error) {
       console.error('Error updating mileage', error);
       alert('Error al actualizar kilometraje.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleAddMaintenance = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (newMaint.descripcion.length < 5) {
+      alert('La descripción es demasiado corta.');
+      return;
+    }
+
     try {
+      setSubmitting(true);
       await api.post('/maintenances', { ...newMaint, vehicleId: vehicle.id });
       setIsMaintModalOpen(false);
       setNewMaint({ tipoMantenimiento: 'CAMBIO_ACEITE', descripcion: '', costoEstimado: 0 });
-      fetchMaintenances();
+      fetchData();
     } catch (error) {
       console.error('Error adding maintenance', error);
       alert('Error al agregar mantenimiento.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const handleUpdateStatus = async (id: number, status: string) => {
+  const handleUpdateStatus = async (id: number, status: 'PENDIENTE' | 'EN_PROCESO' | 'COMPLETADO' | 'CANCELADO') => {
     try {
-      // For completion, we might need to ask for final cost, but let's keep it simple for now
       let costoFinal = null;
       if (status === 'COMPLETADO') {
         const input = prompt('Ingrese el costo final del servicio:', '0');
-        costoFinal = input ? parseFloat(input) : null;
+        if (input === null) return; // User cancelled prompt
+        costoFinal = parseFloat(input);
+        if (isNaN(costoFinal)) {
+          alert('Costo inválido.');
+          return;
+        }
       }
       
       await api.patch(`/maintenances/${id}/status`, { nuevoEstado: status, costoFinal });
-      fetchMaintenances();
+      fetchData();
     } catch (error) {
       console.error('Error updating status', error);
       alert('Error al actualizar el estado del mantenimiento.');
@@ -163,8 +189,8 @@ export const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicle: initial
                   <span className="font-bold text-xs md:text-sm">{vehicle.anio}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-gray-500 font-medium text-xs md:text-sm">Motorización</span>
-                  <span className="font-bold text-xs md:text-sm">1.6 VVT-i</span>
+                  <span className="text-gray-500 font-medium text-xs md:text-sm">Inversión Total</span>
+                  <span className="font-bold text-xs md:text-sm text-primary">$ {totalCost.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -192,7 +218,7 @@ export const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicle: initial
             <div className="p-8 space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold">Kilometraje</h2>
-                <button onClick={() => setIsMileageModalOpen(false)}><X size={20} className="text-gray-400" /></button>
+                <button onClick={() => setIsMileageModalOpen(false)}><X size={20} className="text-gray-400 hover:text-black transition-colors" /></button>
               </div>
               <form onSubmit={handleUpdateMileage} className="space-y-6">
                 <div className="space-y-1">
@@ -202,14 +228,19 @@ export const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicle: initial
                     <input 
                       type="number"
                       required
+                      min={vehicle.kilometrajeActual}
                       className="w-full outline-none font-bold text-lg"
                       value={newMileage}
                       onChange={e => setNewMileage(parseFloat(e.target.value))}
                     />
                   </div>
                 </div>
-                <button type="submit" className="kavak-button-primary w-full py-3 text-[10px] font-black uppercase tracking-widest">
-                  Actualizar
+                <button 
+                  type="submit" 
+                  disabled={submitting}
+                  className="kavak-button-primary w-full py-3 text-[10px] font-black uppercase tracking-widest disabled:opacity-50"
+                >
+                  {submitting ? 'Actualizando...' : 'Actualizar'}
                 </button>
               </form>
             </div>
@@ -224,7 +255,7 @@ export const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicle: initial
             <div className="p-8 space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold">Nuevo Mantenimiento</h2>
-                <button onClick={() => setIsMaintModalOpen(false)}><X size={20} className="text-gray-400" /></button>
+                <button onClick={() => setIsMaintModalOpen(false)}><X size={20} className="text-gray-400 hover:text-black transition-colors" /></button>
               </div>
               <form onSubmit={handleAddMaintenance} className="space-y-6">
                 <div className="space-y-4">
@@ -248,6 +279,7 @@ export const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicle: initial
                     <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Descripción del problema</label>
                     <textarea 
                       required
+                      minLength={5}
                       className="w-full border-b border-gray-200 py-2 outline-none text-sm min-h-[80px]"
                       placeholder="Describa el servicio solicitado..."
                       value={newMaint.descripcion}
@@ -259,14 +291,19 @@ export const VehicleDetails: React.FC<VehicleDetailsProps> = ({ vehicle: initial
                     <input 
                       type="number"
                       required
+                      min={0}
                       className="w-full border-b border-gray-200 py-2 outline-none font-bold text-sm"
                       value={newMaint.costoEstimado}
                       onChange={e => setNewMaint({...newMaint, costoEstimado: parseFloat(e.target.value)})}
                     />
                   </div>
                 </div>
-                <button type="submit" className="kavak-button-primary w-full py-4 text-[10px] font-black uppercase tracking-widest">
-                  Programar Ingreso
+                <button 
+                  type="submit" 
+                  disabled={submitting}
+                  className="kavak-button-primary w-full py-4 text-[10px] font-black uppercase tracking-widest disabled:opacity-50"
+                >
+                  {submitting ? 'Programando...' : 'Programar Ingreso'}
                 </button>
               </form>
             </div>

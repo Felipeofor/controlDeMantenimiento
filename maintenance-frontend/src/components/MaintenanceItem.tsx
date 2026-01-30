@@ -7,9 +7,9 @@ interface MaintenanceItemProps {
   tipo: string;
   descripcion: string;
   fecha: string;
-  estado: string;
+  estado: 'PENDIENTE' | 'EN_PROCESO' | 'COMPLETADO' | 'CANCELADO';
   costo: number;
-  onUpdateStatus?: (id: number, status: string) => void;
+  onUpdateStatus?: (id: number, status: 'PENDIENTE' | 'EN_PROCESO' | 'COMPLETADO' | 'CANCELADO') => void;
 }
 
 export const MaintenanceItem: React.FC<MaintenanceItemProps> = ({
