@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-text font-sans antialiased;
+  }
+}
+
+@layer components {
+  .kavak-card {
+    @apply bg-surface border border-border rounded-kavak shadow-kavak transition-all duration-300;
+  }
+
+  .kavak-card:hover {
+    @apply shadow-kavak-lg border-primary/20 -translate-y-1;
+  }
+
+  .kavak-button {
+    @apply px-8 py-3 rounded-kavak-pill font-bold transition-all duration-200 cursor-pointer text-sm;
+  }
+
+  .kavak-button-primary {
+    @apply bg-accent text-white hover:bg-gray-800 hover:shadow-lg active:scale-95;
+  }
+
+  .kavak-button-ghost {
+    @apply bg-surface text-primary border border-border hover:bg-background hover:border-primary active:scale-95;
+  }
+}
