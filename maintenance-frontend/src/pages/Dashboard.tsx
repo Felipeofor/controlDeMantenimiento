@@ -11,6 +11,7 @@ import api from '../lib/api';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { StatusBadge } from '../components/StatusBadge';
 
 export const Dashboard: React.FC = () => {
   const { t } = useTranslation();
@@ -35,7 +36,7 @@ export const Dashboard: React.FC = () => {
   if (loading || !stats) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-gray-400 animate-pulse font-black uppercase tracking-widest text-[10px]">Cargando Dashboard Inteligente...</div>
+        <div className="text-gray-400 animate-pulse font-black uppercase tracking-widest text-[10px]">{t('common.loading')}</div>
       </div>
     );
   }
@@ -60,18 +61,18 @@ export const Dashboard: React.FC = () => {
       <main className="max-w-7xl mx-auto space-y-10">
         <header className="space-y-2">
           <h1 className="text-4xl md:text-6xl font-black tracking-tighter italic uppercase text-gray-900">
-            Inteligencia <span className="text-primary">de Flota</span>
+            {t('navbar.dashboard')} <span className="text-primary">{t('dashboard.title_highlight')}</span>
           </h1>
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">Kavak Fleet Management System v2.0</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400">{t('dashboard.subtitle')}</p>
         </header>
 
         {/* KPI Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { label: 'Unidades Totales', value: stats.totalVehicles, icon: Car, color: 'bg-black' },
-            { label: 'En Taller', value: stats.inServiceVehicles, icon: Wrench, color: 'bg-primary' },
-            { label: 'Inversión Total', value: `$${stats.totalSpent?.toLocaleString('es-AR') || '0'}`, icon: DollarSign, color: 'bg-black' },
-            { label: 'Costo Promedio', value: `$${stats.averageMaintenanceCost?.toLocaleString('es-AR') || '0'}`, icon: Activity, color: 'bg-gray-400' },
+            { label: t('home.total_vehicles'), value: stats.totalVehicles, icon: Car, color: 'bg-black' },
+            { label: t('home.in_service'), value: stats.inServiceVehicles, icon: Wrench, color: 'bg-primary' },
+            { label: t('home.total_investment'), value: `$${stats.totalSpent?.toLocaleString('es-AR') || '0'}`, icon: DollarSign, color: 'bg-black' },
+            { label: t('home.average_cost'), value: `$${stats.averageMaintenanceCost?.toLocaleString('es-AR') || '0'}`, icon: Activity, color: 'bg-gray-400' },
           ].map((kpi, idx) => (
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -102,8 +103,8 @@ export const Dashboard: React.FC = () => {
              className="bg-white p-10 rounded-[48px] border border-gray-100 shadow-sm space-y-8"
           >
             <div className="flex justify-between items-center">
-              <h3 className="text-xl font-bold tracking-tight italic">Distribución por Servicio</h3>
-              <div className="bg-gray-50 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-gray-400 border border-gray-100">Live View</div>
+              <h3 className="text-xl font-bold tracking-tight italic">{t('dashboard.distribution_by_service')}</h3>
+              <div className="bg-gray-50 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest text-gray-400 border border-gray-100">{t('dashboard.live_view')}</div>
             </div>
             <div className="h-[300px] min-h-[300px] w-full relative">
               <ResponsiveContainer width="100%" height="100%">
@@ -141,7 +142,7 @@ export const Dashboard: React.FC = () => {
           >
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
             <div className="flex justify-between items-center relative z-10">
-              <h3 className="text-xl font-bold tracking-tight italic">Estado de Procesos</h3>
+              <h3 className="text-xl font-bold tracking-tight italic">{t('dashboard.process_status')}</h3>
             </div>
             <div className="h-[300px] min-h-[300px] w-full relative z-10 flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
@@ -166,7 +167,7 @@ export const Dashboard: React.FC = () => {
                 </PieChart>
               </ResponsiveContainer>
               <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">Total</span>
+                <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">{t('dashboard.total')}</span>
                 <span className="text-3xl font-black leading-none">{stats.maintenanceByStatus ? (Object.values(stats.maintenanceByStatus) as number[]).reduce((a: number, b: number) => a + b, 0) : 0}</span>
               </div>
             </div>
@@ -180,8 +181,8 @@ export const Dashboard: React.FC = () => {
              className="bg-white p-10 rounded-[48px] border border-gray-100 shadow-sm space-y-8 lg:col-span-2"
           >
             <div className="flex justify-between items-center">
-              <h3 className="text-xl font-bold tracking-tight italic">Costo Promedio por Marca</h3>
-              <div className="bg-blue-50 text-blue-500 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-blue-100">Financial Insights</div>
+              <h3 className="text-xl font-bold tracking-tight italic">{t('dashboard.avg_cost_by_brand')}</h3>
+              <div className="bg-blue-50 text-blue-500 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-blue-100">{t('dashboard.financial_insights')}</div>
             </div>
             <div className="h-[300px] min-h-[300px] w-full relative">
               <ResponsiveContainer width="100%" height="100%">
@@ -225,18 +226,40 @@ export const Dashboard: React.FC = () => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    className="bg-white p-6 rounded-[32px] border border-gray-100 hover:border-primary/30 transition-all flex items-center justify-between group"
+                    className="bg-white p-6 rounded-[32px] border border-gray-100 hover:border-primary/30 transition-all flex flex-col group shadow-sm hover:shadow-xl"
                   >
-                    <div className="flex items-center gap-4">
-                       <div className="bg-gray-50 w-12 h-12 rounded-2xl flex items-center justify-center text-gray-400 group-hover:bg-primary/5 group-hover:text-primary transition-colors">
-                          <Clock size={20} />
+                    <div className="flex justify-between items-start">
+                       <div className="space-y-1">
+                          <div className="text-[10px] font-black uppercase text-gray-400 tracking-wider">
+                            {t(`maintenance.types.${m.tipoMantenimiento}`)}
+                          </div>
+                          <div className="font-bold text-gray-900 line-clamp-1 group-hover:text-primary transition-colors">
+                            {m.descripcion}
+                          </div>
                        </div>
-                       <div>
-                          <div className="text-[10px] font-black uppercase text-gray-400">{t(`maintenance.types.${m.tipoMantenimiento}`)}</div>
-                          <div className="font-bold text-gray-900 line-clamp-1">{m.descripcion}</div>
+                       <StatusBadge status={m.estado} />
+                    </div>
+
+                    <div className="mt-4 flex items-center gap-2 text-gray-600 text-xs">
+                       <Car size={14} className="text-gray-400" />
+                       <span className="font-bold">{m.vehicleBrand} {m.vehicleModel}</span>
+                       <span className="text-gray-300">/</span>
+                       <span className="bg-gray-100 px-1.5 py-0.5 rounded text-[10px] font-mono font-black tracking-tighter text-gray-500">{m.vehiclePlate}</span>
+                    </div>
+
+                    <div className="mt-6 flex items-center justify-between border-t border-gray-50 pt-4">
+                       <div className="flex items-center gap-2 text-gray-400 text-[10px] font-black uppercase tracking-widest">
+                          <Clock size={12} />
+                          {new Date(m.fechaCreacion).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' })}
+                       </div>
+
+                       <div className="text-right">
+                          <div className="text-[9px] font-black uppercase text-gray-400 leading-none tracking-tight">{t('dashboard.cost')}</div>
+                          <div className="text-sm font-black text-gray-900">
+                             ${(m.costoFinal || m.costoEstimado || 0).toLocaleString('es-AR')}
+                          </div>
                        </div>
                     </div>
-                    <ChevronRight size={18} className="text-gray-300 group-hover:text-primary transform group-hover:translate-x-1 transition-all" />
                   </motion.div>
                 </Link>
               ))}

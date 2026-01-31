@@ -45,7 +45,7 @@ export const MaintenanceItem: React.FC<MaintenanceItemProps> = ({
         {items && items.length > 0 && (
           <div className="bg-gray-50/50 rounded-2xl p-4 mb-6 space-y-3">
              <div className="flex items-center justify-between px-2">
-               <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">Desglose de Gasto</span>
+               <span className="text-[9px] font-black uppercase tracking-widest text-gray-400">{t('maintenance.expense_breakdown')}</span>
              </div>
              <div className="space-y-2">
                {items.map(item => (
@@ -64,12 +64,12 @@ export const MaintenanceItem: React.FC<MaintenanceItemProps> = ({
         <div className="flex items-start justify-between flex-wrap gap-6">
           <div className="flex items-center gap-6">
             <div className="flex flex-col">
-              <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">Fecha</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">{t('maintenance.date')}</span>
               <span className="text-sm font-bold text-gray-500">{new Date(fecha).toLocaleDateString()}</span>
             </div>
             {costo > 0 && (
               <div className="flex flex-col border-l border-gray-100 pl-6">
-                <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">{estado === 'COMPLETADO' ? 'Inversión Total' : 'Costo Estimado'}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">{estado === 'COMPLETADO' ? t('maintenance.total_investment') : t('maintenance.estimated_cost')}</span>
                 <span className="text-sm font-bold text-black tracking-tight">$ {costo.toLocaleString()}</span>
               </div>
             )}
@@ -109,7 +109,7 @@ export const MaintenanceItem: React.FC<MaintenanceItemProps> = ({
                   onClick={() => onAddItem(id)}
                   className="text-[10px] font-black uppercase tracking-widest text-primary hover:underline"
                 >
-                  + Cargar Gasto
+                  + {t('maintenance.load_expense')}
                 </button>
               )}
 

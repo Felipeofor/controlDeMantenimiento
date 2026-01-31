@@ -8,18 +8,20 @@ interface LanguageSelectorProps {
   onClose: () => void;
 }
 
-const countries = [
-  { code: 'es', name: 'Argentina', flag: '🇦🇷' },
-  { code: 'pt', name: 'Brasil', flag: '🇧🇷' },
-  { code: 'en', name: 'USA / International', flag: '🇺🇸' },
-  { code: 'es', name: 'México', flag: '🇲🇽' },
-  { code: 'en', name: 'Turkey', flag: '🇹🇷' },
-  { code: 'es', name: 'Chile', flag: '🇨🇱' },
-  { code: 'en', name: 'UAE', flag: '🇦🇪' },
-];
+
 
 export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ isOpen, onClose }) => {
   const { i18n, t } = useTranslation();
+
+  const countries = [
+    { code: 'es', name: t('countries.argentina'), flag: '🇦🇷' },
+    { code: 'pt', name: t('countries.brazil'), flag: '🇧🇷' },
+    { code: 'en', name: 'USA / International', flag: '🇺🇸' },
+    { code: 'es', name: t('countries.mexico'), flag: '🇲🇽' },
+    { code: 'en', name: t('countries.turkey'), flag: '🇹🇷' },
+    { code: 'es', name: t('countries.chile'), flag: '🇨🇱' },
+    { code: 'en', name: t('countries.uae'), flag: '🇦🇪' },
+  ];
 
   const handleLanguageChange = (code: string) => {
     i18n.changeLanguage(code);

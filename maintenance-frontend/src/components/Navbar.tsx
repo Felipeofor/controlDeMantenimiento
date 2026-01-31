@@ -84,7 +84,7 @@ export const Navbar: React.FC = () => {
                     <User size={24} />
                   </div>
                   <div>
-                    <div className="text-xs font-black uppercase tracking-widest text-gray-400">Mi Cuenta</div>
+                    <div className="text-xs font-black uppercase tracking-widest text-gray-400">{t('common.my_account')}</div>
                     <div className="font-bold">Felipe Omar</div>
                   </div>
                 </div>

@@ -232,7 +232,7 @@ export const VehicleDetails: React.FC = () => {
       handleDeleteClick('VEHICLE');
   };
 
-  if (loading || !vehicle) return <div className="min-h-screen flex items-center justify-center italic text-gray-400">Cargando...</div>;
+  if (loading || !vehicle) return <div className="min-h-screen flex items-center justify-center italic text-gray-400">{t('common.loading')}</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20 md:pt-24 pb-12 px-4 md:px-12">
@@ -256,7 +256,7 @@ export const VehicleDetails: React.FC = () => {
                 <div className="absolute -top-12 -right-12 w-48 h-48 bg-primary/5 rounded-full blur-3xl"></div>
                 <div className="space-y-6 relative z-10">
                   <div className="flex items-center gap-3">
-                    <span className="bg-primary/10 text-primary text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest">CERTIFIED</span>
+                    <span className="bg-primary/10 text-primary text-[10px] font-black px-4 py-2 rounded-full uppercase tracking-widest">{t('vehicle_details.certified')}</span>
                     <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">{vehicle.patente}</span>
                   </div>
                   <h1 className="text-5xl md:text-7xl font-bold tracking-tighter leading-none">
@@ -269,19 +269,19 @@ export const VehicleDetails: React.FC = () => {
                   </div>
                 </div>
                 <div className="bg-black text-white p-8 rounded-[32px] shrink-0 text-center md:text-left shadow-2xl relative z-10">
-                   <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-1">Inversión Total</span>
+                   <span className="text-[10px] font-black uppercase tracking-widest text-gray-500 block mb-1">{t('vehicle_details.total_invested')}</span>
                    <div className="text-4xl font-bold tracking-tight">${totalCost.toLocaleString('es-AR')}</div>
                 </div>
            </div>
 
            <div className="bg-black text-white p-8 rounded-[40px] flex flex-col justify-between gap-8 shadow-2xl">
               <div>
-                <h3 className="text-xl font-bold italic tracking-tight">Kavak Expert</h3>
-                <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest">Quick Actions</p>
+                <h3 className="text-xl font-bold italic tracking-tight">{t('common.expert_fleet')}</h3>
+                <p className="text-[10px] font-medium text-gray-500 uppercase tracking-widest">{t('vehicle_details.quick_actions')}</p>
               </div>
               <div className="space-y-3">
-                <button onClick={() => setIsMileageModalOpen(true)} className="w-full bg-white/10 hover:bg-white/20 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-colors">Actualizar KM</button>
-                <button onClick={() => setIsMaintModalOpen(true)} className="w-full bg-primary hover:bg-primary/90 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-transform hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20">Programar Service</button>
+                <button onClick={() => setIsMileageModalOpen(true)} className="w-full bg-white/10 hover:bg-white/20 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-colors">{t('vehicle_details.update_km')}</button>
+                <button onClick={() => setIsMaintModalOpen(true)} className="w-full bg-primary hover:bg-primary/90 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-transform hover:scale-[1.02] active:scale-95 shadow-lg shadow-primary/20">{t('vehicle_details.schedule_service')}</button>
               </div>
            </div>
         </div>
@@ -289,13 +289,13 @@ export const VehicleDetails: React.FC = () => {
         {/* History Section */}
         <section className="space-y-8 pt-8">
            <div className="flex items-center gap-4">
-             <h2 className="text-2xl font-bold italic uppercase tracking-tighter">Historial Técnico</h2>
+             <h2 className="text-2xl font-bold italic uppercase tracking-tighter">{t('vehicle_details.tech_history')}</h2>
              <div className="h-[1px] flex-grow bg-gray-200"></div>
            </div>
            
            <div className="space-y-4">
              {maintenances.length === 0 ? (
-               <div className="text-center py-20 bg-white rounded-[40px] border-2 border-dashed border-gray-100 text-gray-300 italic">No hay registros aún</div>
+               <div className="text-center py-20 bg-white rounded-[40px] border-2 border-dashed border-gray-100 text-gray-300 italic">{t('vehicle_details.no_history')}</div>
              ) : (
                maintenances.map(m => (
                  <MaintenanceItem 
@@ -326,12 +326,12 @@ export const VehicleDetails: React.FC = () => {
           <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
              <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="bg-white rounded-[40px] p-10 w-full max-w-sm space-y-8">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold">Actualizar KM</h2>
+                  <h2 className="text-2xl font-bold">{t('modals.update_km_title')}</h2>
                   <button onClick={() => setIsMileageModalOpen(false)}><X/></button>
                 </div>
                 <form onSubmit={handleUpdateMileage} className="space-y-6">
                   <input type="number" value={newMileage} onChange={e => setNewMileage(parseInt(e.target.value))} className="w-full text-5xl font-bold tracking-tighter border-b-2 border-gray-100 focus:border-primary outline-none py-2" />
-                  <button type="submit" disabled={submitting} className="kavak-button-primary w-full py-5 text-[10px] uppercase font-black tracking-widest">{submitting ? 'Confirmando...' : 'Confirmar'}</button>
+                  <button type="submit" disabled={submitting} className="kavak-button-primary w-full py-5 text-[10px] uppercase font-black tracking-widest">{submitting ? t('modals.confirm_action') + '...' : t('modals.confirm_action')}</button>
                 </form>
              </motion.div>
           </div>
@@ -342,7 +342,7 @@ export const VehicleDetails: React.FC = () => {
           <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
              <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="bg-white rounded-[40px] p-10 w-full max-w-lg space-y-8">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold italic tracking-tighter">Programar Service</h2>
+                  <h2 className="text-2xl font-bold italic tracking-tighter">{t('modals.schedule_service_title')}</h2>
                   <button onClick={() => setIsMaintModalOpen(false)}><X/></button>
                 </div>
                 <form onSubmit={handleAddMaintenance} className="space-y-6">
@@ -362,7 +362,7 @@ export const VehicleDetails: React.FC = () => {
                     <input type="number" placeholder={t('maintenance.cost_est')} value={newMaint.costoEstimado} onChange={e => setNewMaint({...newMaint, costoEstimado: parseInt(e.target.value)})} className="border-b border-gray-200 py-2 outline-none font-bold text-sm" />
                   </div>
                   <textarea placeholder={t('maintenance.description_placeholder')} value={newMaint.descripcion} onChange={e => setNewMaint({...newMaint, descripcion: e.target.value})} className="w-full h-32 border-b border-gray-200 outline-none resize-none text-sm" />
-                  <button type="submit" disabled={submitting} className="kavak-button-primary w-full py-5 text-[10px] uppercase font-black tracking-widest">Crear Registro</button>
+                  <button type="submit" disabled={submitting} className="kavak-button-primary w-full py-5 text-[10px] uppercase font-black tracking-widest">{t('modals.create_record')}</button>
                 </form>
              </motion.div>
           </div>
@@ -373,29 +373,29 @@ export const VehicleDetails: React.FC = () => {
           <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
              <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="bg-white rounded-[40px] p-10 w-full max-w-sm space-y-8">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold tracking-tight">Cargar Gasto</h2>
+                  <h2 className="text-2xl font-bold tracking-tight">{t('modals.add_expense_title')}</h2>
                   <button onClick={() => setIsItemModalOpen(false)}><X/></button>
                 </div>
                 <form onSubmit={handleAddItem} className="space-y-6">
                   <div className="space-y-2">
-                    <label className="text-[10px] font-black uppercase text-gray-400">Descripción</label>
+                    <label className="text-[10px] font-black uppercase text-gray-400">{t('modals.identification')}</label>
                     <input required value={newItem.descripcion} onChange={e => setNewItem({...newItem, descripcion: e.target.value})} className="w-full border-b border-gray-100 py-2 outline-none font-bold" placeholder="Eje. Filtro de Aceite" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-gray-400">Tipo</label>
+                      <label className="text-[10px] font-black uppercase text-gray-400">{t('modals.type')}</label>
                       <select value={newItem.tipo} onChange={e => setNewItem({...newItem, tipo: e.target.value as any})} className="w-full border-b border-gray-100 py-2 outline-none font-bold text-xs uppercase">
-                        <option value="REPUESTO">Repuesto</option>
-                        <option value="MANO_DE_OBRA">Mano de Obra</option>
-                        <option value="OTRO">Otro</option>
+                        <option value="REPUESTO">{t('modals.spare_part')}</option>
+                        <option value="MANO_DE_OBRA">{t('modals.labor')}</option>
+                        <option value="OTRO">{t('modals.other')}</option>
                       </select>
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase text-gray-400">Costo</label>
+                       <label className="text-[10px] font-black uppercase text-gray-400">{t('modals.cost')}</label>
                        <input type="number" required value={newItem.costo} onChange={e => setNewItem({...newItem, costo: parseInt(e.target.value)})} className="w-full border-b border-gray-100 py-2 outline-none font-bold" />
                     </div>
                   </div>
-                  <button type="submit" disabled={submitting} className="kavak-button-primary w-full py-5 text-[10px] uppercase font-black tracking-widest">Agregar Gasto</button>
+                  <button type="submit" disabled={submitting} className="kavak-button-primary w-full py-5 text-[10px] uppercase font-black tracking-widest">{t('modals.add_expense_btn')}</button>
                 </form>
              </motion.div>
           </div>
@@ -406,7 +406,7 @@ export const VehicleDetails: React.FC = () => {
           <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
              <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="bg-white rounded-[40px] p-10 w-full max-w-sm space-y-8 text-center">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-2xl font-bold tracking-tight text-left">Adjuntar Archivo</h2>
+                  <h2 className="text-2xl font-bold tracking-tight text-left">{t('modals.upload_file_title')}</h2>
                   <button onClick={() => setIsAttachmentModalOpen(false)}><X/></button>
                 </div>
                 <form onSubmit={handleUploadFile} className="space-y-8">
@@ -414,12 +414,12 @@ export const VehicleDetails: React.FC = () => {
                     <input type="file" required onChange={e => setNewAttachment({ file: e.target.files?.[0] || null })} className="absolute inset-0 opacity-0 cursor-pointer" />
                     <Upload className="w-12 h-12 text-gray-200 group-hover:text-primary transition-colors" />
                     <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-                       {newAttachment.file ? newAttachment.file.name : 'Click o arrastra archivo'}
+                       {newAttachment.file ? newAttachment.file.name : t('modals.drag_drop')}
                     </div>
                   </div>
                   <button type="submit" disabled={submitting || !newAttachment.file} className="kavak-button-primary w-full py-5 text-[10px] uppercase font-black tracking-widest flex items-center justify-center gap-2">
                     <Upload size={14} />
-                    {submitting ? 'Subiendo...' : 'Subir Documento'}
+                    {submitting ? t('modals.uploading') : t('modals.upload_btn')}
                   </button>
                 </form>
              </motion.div>
@@ -431,19 +431,19 @@ export const VehicleDetails: React.FC = () => {
           <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
              <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="bg-white rounded-[40px] p-10 w-full max-w-md space-y-8">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold">Editar Vehículo</h2>
+                  <h2 className="text-2xl font-bold">{t('modals.edit_vehicle_title')}</h2>
                   <button onClick={() => setIsEditModalOpen(false)}><X/></button>
                 </div>
                 <form onSubmit={handleUpdateVehicle} className="space-y-6">
                    <div className="grid grid-cols-2 gap-4">
-                      <input placeholder="Marca" value={editVehicle.marca} onChange={e => setEditVehicle({...editVehicle, marca: e.target.value})} className="border-b border-gray-100 py-2 outline-none font-bold" />
-                      <input placeholder="Modelo" value={editVehicle.modelo} onChange={e => setEditVehicle({...editVehicle, modelo: e.target.value})} className="border-b border-gray-100 py-2 outline-none font-bold" />
+                      <input placeholder={t('modals.brand')} value={editVehicle.marca} onChange={e => setEditVehicle({...editVehicle, marca: e.target.value})} className="border-b border-gray-100 py-2 outline-none font-bold" />
+                      <input placeholder={t('modals.model')} value={editVehicle.modelo} onChange={e => setEditVehicle({...editVehicle, modelo: e.target.value})} className="border-b border-gray-100 py-2 outline-none font-bold" />
                    </div>
                    <div className="grid grid-cols-2 gap-4">
-                      <input placeholder="Patente" value={editVehicle.patente} onChange={e => setEditVehicle({...editVehicle, patente: e.target.value})} className="border-b border-gray-100 py-2 outline-none font-bold uppercase" />
-                      <input placeholder="Año" type="number" value={editVehicle.anio} onChange={e => setEditVehicle({...editVehicle, anio: parseInt(e.target.value)})} className="border-b border-gray-100 py-2 outline-none font-bold" />
+                      <input placeholder={t('modals.identification')} value={editVehicle.patente} onChange={e => setEditVehicle({...editVehicle, patente: e.target.value})} className="border-b border-gray-100 py-2 outline-none font-bold uppercase" />
+                      <input placeholder={t('modals.manufacture_year')} type="number" value={editVehicle.anio} onChange={e => setEditVehicle({...editVehicle, anio: parseInt(e.target.value)})} className="border-b border-gray-100 py-2 outline-none font-bold" />
                    </div>
-                   <button type="submit" disabled={submitting} className="kavak-button-primary w-full py-5 text-[10px] uppercase font-black tracking-widest">Guardar Cambios</button>
+                   <button type="submit" disabled={submitting} className="kavak-button-primary w-full py-5 text-[10px] uppercase font-black tracking-widest">{t('modals.save_changes')}</button>
                 </form>
              </motion.div>
           </div>
@@ -454,15 +454,15 @@ export const VehicleDetails: React.FC = () => {
           <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
              <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="bg-white rounded-[40px] p-10 w-full max-w-sm space-y-8">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-2xl font-bold tracking-tight">Finalizar Service</h2>
+                  <h2 className="text-2xl font-bold tracking-tight">{t('modals.finish_service_title')}</h2>
                   <button onClick={() => setIsCompleteModalOpen(false)}><X/></button>
                 </div>
                 <div className="text-sm text-gray-500 font-medium">
-                   Este service no tiene gastos registrados. Por favor, ingresa el costo final mano a mano.
+                   {t('modals.no_expenses_warning')}
                 </div>
                 <form onSubmit={handleConfirmCompletion} className="space-y-6">
                    <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase text-gray-400">Costo Final Real</label>
+                      <label className="text-[10px] font-black uppercase text-gray-400">{t('modals.final_cost_real')}</label>
                       <div className="flex items-center gap-2 border-b-2 border-gray-100 py-2 focus-within:border-primary transition-colors">
                          <span className="text-xl font-bold text-gray-400">$</span>
                          <input 
@@ -476,7 +476,7 @@ export const VehicleDetails: React.FC = () => {
                       </div>
                    </div>
                    <button type="submit" disabled={submitting} className="kavak-button-primary w-full py-5 text-[10px] uppercase font-black tracking-widest">
-                      {submitting ? 'Finalizando...' : 'Confirmar Finalización'}
+                      {submitting ? t('modals.finishing') : t('modals.finish_confirm')}
                    </button>
                 </form>
              </motion.div>
@@ -491,15 +491,15 @@ export const VehicleDetails: React.FC = () => {
                    <X size={32} />
                 </div>
                 <div className="space-y-2">
-                   <h2 className="text-2xl font-bold tracking-tight">¿Estás seguro?</h2>
+                   <h2 className="text-2xl font-bold tracking-tight">{t('modals.delete_title')}</h2>
                    <p className="text-sm text-gray-500 font-medium">
-                     Esta acción es irreversible. Se eliminará el {deleteTarget?.type === 'VEHICLE' ? 'vehículo y todo su historial' : 'registro de mantenimiento'}.
+                     {deleteTarget?.type === 'VEHICLE' ? t('modals.delete_vehicle_desc') : t('modals.delete_maintenance_desc')}
                    </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                   <button onClick={() => setIsDeleteModalOpen(false)} className="kavak-button-ghost py-4 text-[10px] font-black uppercase tracking-widest">Cancelar</button>
+                   <button onClick={() => setIsDeleteModalOpen(false)} className="kavak-button-ghost py-4 text-[10px] font-black uppercase tracking-widest">{t('common.cancel')}</button>
                    <button onClick={handleConfirmDelete} className="bg-red-500 hover:bg-red-600 text-white rounded-2xl py-4 text-[10px] font-black uppercase tracking-widest transition-colors shadow-lg shadow-red-500/20">
-                     Sí, Eliminar
+                     {t('modals.delete_confirm')}
                    </button>
                 </div>
              </motion.div>

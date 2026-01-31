@@ -31,4 +31,9 @@ public class MaintenanceDTO {
 
     private java.util.List<AttachmentDTO> adjuntos;
     private java.util.List<MaintenanceItemDTO> items;
+
+    // Campos informativos para listas y dashboards
+    private String vehiclePlate;
+    private String vehicleBrand;
+    private String vehicleModel;
 }

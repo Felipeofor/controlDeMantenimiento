@@ -9,6 +9,7 @@ import com.kavak.challenge.maintenancesystem.repository.VehicleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,7 +56,32 @@ public class AnalyticsService {
                                 .maintenanceByType(maintenanceByType)
                                 .maintenanceByStatus(maintenanceByStatus)
                                 .averageCostByBrand(calculateAverageCostByBrand(allMaintenances))
+                                .recentMaintenances(allMaintenances.stream()
+                                                .sorted(Comparator.comparing(Maintenance::getFechaCreacion).reversed())
+                                                .limit(10)
+                                                .map(this::convertToDto)
+                                                .collect(Collectors.toList()))
                                 .build();
+        }
+
+        private com.kavak.challenge.maintenancesystem.dto.MaintenanceDTO convertToDto(Maintenance m) {
+                com.kavak.challenge.maintenancesystem.dto.MaintenanceDTO dto = new com.kavak.challenge.maintenancesystem.dto.MaintenanceDTO();
+                dto.setId(m.getId());
+                dto.setVehicleId(m.getVehicle().getId());
+                dto.setTipoMantenimiento(m.getTipoMantenimiento());
+                dto.setDescripcion(m.getDescripcion());
+                dto.setFechaCreacion(m.getFechaCreacion());
+                dto.setEstado(m.getEstado());
+                dto.setCostoEstimado(m.getCostoEstimado());
+                dto.setCostoFinal(m.getCostoFinal());
+
+                if (m.getVehicle() != null) {
+                        dto.setVehiclePlate(m.getVehicle().getPatente());
+                        dto.setVehicleBrand(m.getVehicle().getMarca());
+                        dto.setVehicleModel(m.getVehicle().getModelo());
+                }
+
+                return dto;
         }
 
         private java.util.Map<String, Double> calculateAverageCostByBrand(List<Maintenance> maintenances) {

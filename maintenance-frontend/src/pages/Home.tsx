@@ -105,11 +105,11 @@ export const Home: React.FC = () => {
               >
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest">
                   <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
-                  Fleet Live Status
+                  {t('home.fleet_live_status')}
                 </div>
                 <h1 className="text-5xl md:text-7xl font-bold text-gray-900 tracking-tighter leading-[0.9]">
                   Kavak <br />
-                  <span className="text-primary italic">Expert Fleet</span>
+                  <span className="text-primary italic">{t('common.expert_fleet')}</span>
                 </h1>
                 <p className="text-gray-500 text-lg md:text-xl font-medium leading-relaxed">
                   {t('home.dashboard_title')}
@@ -223,7 +223,7 @@ export const Home: React.FC = () => {
 
         <section className="space-y-8">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-xl font-bold italic uppercase tracking-tighter">Vehículos de Flota</h2>
+            <h2 className="text-xl font-bold italic uppercase tracking-tighter">{t('home.dashboard_title')}</h2>
             <div className="h-[1px] flex-grow bg-gray-200"></div>
           </div>
           
@@ -287,7 +287,7 @@ export const Home: React.FC = () => {
                 <form onSubmit={handleRegister} className="space-y-6 overflow-y-auto pr-2 custom-scrollbar">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Identificación</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">{t('modals.identification')}</label>
                       <input 
                         required
                         className="w-full border-b-2 border-gray-100 py-2 outline-none focus:border-primary transition-colors text-lg font-bold uppercase tracking-widest bg-transparent"
@@ -297,7 +297,7 @@ export const Home: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Año Fabricación</label>
+                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">{t('modals.manufacture_year')}</label>
                        <input 
                          required
                          type="number"
@@ -307,7 +307,7 @@ export const Home: React.FC = () => {
                        />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Marca</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">{t('modals.brand')}</label>
                       <input 
                         required
                         className="w-full border-b-2 border-gray-100 py-2 outline-none focus:border-primary transition-colors text-lg font-bold bg-transparent"
@@ -317,7 +317,7 @@ export const Home: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Modelo</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">{t('modals.model')}</label>
                       <input 
                         required
                         className="w-full border-b-2 border-gray-100 py-2 outline-none focus:border-primary transition-colors text-lg font-bold bg-transparent"
@@ -327,7 +327,7 @@ export const Home: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Odómetro Actual</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">{t('modals.current_odometer')}</label>
                       <div className="flex items-center gap-3 border-b-2 border-gray-100 py-2 focus-within:border-primary transition-colors">
                         <Gauge size={18} className="text-gray-400" />
                         <input 
@@ -341,7 +341,7 @@ export const Home: React.FC = () => {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Plan de Mantenimiento</label>
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">{t('modals.maintenance_plan')}</label>
                       <div className="flex items-center gap-3 border-b-2 border-gray-100 py-2 focus-within:border-primary transition-colors">
                         <Gauge size={18} className="text-gray-400" />
                         <input 

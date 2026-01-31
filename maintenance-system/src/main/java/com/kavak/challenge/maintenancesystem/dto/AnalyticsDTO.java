@@ -19,4 +19,5 @@ public class AnalyticsDTO {
     private Map<String, Long> maintenanceByType;
     private Map<String, Long> maintenanceByStatus;
     private Map<String, Double> averageCostByBrand;
+    private java.util.List<MaintenanceDTO> recentMaintenances;
 }
