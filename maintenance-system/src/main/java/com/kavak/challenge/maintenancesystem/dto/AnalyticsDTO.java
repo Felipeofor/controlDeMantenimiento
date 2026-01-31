@@ -17,5 +17,6 @@ public class AnalyticsDTO {
     private Double totalSpent;
     private Double averageMaintenanceCost;
     private Map<String, Long> maintenanceByType;
+    private Map<String, Long> maintenanceByStatus;
     private Map<String, Double> averageCostByBrand;
 }

@@ -122,7 +122,7 @@ export const MaintenanceItem: React.FC<MaintenanceItemProps> = ({
                 </button>
               )}
               
-              {onDelete && (
+              {!isFinal && onDelete && (
                 <button 
                   onClick={onDelete}
                   className="p-2 text-gray-300 hover:text-red-500 transition-colors"

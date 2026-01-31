@@ -104,6 +104,12 @@ public class MaintenanceService {
     public void deleteMaintenance(Long id) {
         Maintenance maintenance = maintenanceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Mantenimiento no encontrado."));
+
+        if (maintenance.getEstado() == MaintenanceStatus.COMPLETADO) {
+            throw new BusinessException(
+                    "No se puede eliminar un mantenimiento finalizado porque es parte del historial histórico del vehículo.");
+        }
+
         maintenanceRepository.delete(maintenance);
     }
 

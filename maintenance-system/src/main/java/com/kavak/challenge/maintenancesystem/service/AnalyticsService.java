@@ -42,6 +42,10 @@ public class AnalyticsService {
                                 .collect(Collectors.groupingBy(m -> m.getTipoMantenimiento().name(),
                                                 Collectors.counting()));
 
+                java.util.Map<String, Long> maintenanceByStatus = allMaintenances.stream()
+                                .collect(Collectors.groupingBy(m -> m.getEstado().name(),
+                                                Collectors.counting()));
+
                 return AnalyticsDTO.builder()
                                 .totalVehicles(totalVehicles)
                                 .availableVehicles(availableVehicles)
@@ -49,6 +53,7 @@ public class AnalyticsService {
                                 .totalSpent(totalSpent)
                                 .averageMaintenanceCost(avgCost)
                                 .maintenanceByType(maintenanceByType)
+                                .maintenanceByStatus(maintenanceByStatus)
                                 .averageCostByBrand(calculateAverageCostByBrand(allMaintenances))
                                 .build();
         }

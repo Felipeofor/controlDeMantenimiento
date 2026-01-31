@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Home } from './pages/Home';
 import { VehicleDetails } from './pages/VehicleDetails';
 import { Dashboard } from './pages/Dashboard';
+import { Toaster } from './components/Toaster';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route path="/vehicle/:id" element={<VehicleDetails />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        <Toaster />
       </div>
     </BrowserRouter>
   );

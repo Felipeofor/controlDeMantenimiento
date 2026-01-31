@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { getErrorMessage } from '../lib/utils';
+import { toast } from 'sonner';
 import { Navbar } from '../components/Navbar';
 import { VehicleCard } from '../components/VehicleCard';
 import { RotateCcw, Search, Plus, X, Gauge } from 'lucide-react';
@@ -28,15 +30,20 @@ export const Home: React.FC = () => {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (newVehicle.patente.trim().length < 6) return alert('La patente es demasiado corta.');
+    if (newVehicle.patente.trim().length < 6) {
+      toast.error('La patente es demasiado corta.');
+      return;
+    }
     try {
       setSubmitting(true);
       await api.post('/vehicles', newVehicle);
       setIsRegisterModalOpen(false);
       setNewVehicle({ patente: '', marca: '', modelo: '', anio: new Date().getFullYear(), kilometrajeActual: 0, proximoMantenimientoKm: 0 });
       fetchVehicles();
-    } catch (error) {
-      alert('Error al registrar el vehículo.');
+      fetchVehicles();
+    } catch (error: any) {
+      console.error('Error registering vehicle', error);
+      toast.error(getErrorMessage(error, 'Error al registrar el vehículo.'));
     } finally {
       setSubmitting(false);
     }
@@ -59,8 +66,9 @@ export const Home: React.FC = () => {
         ...v,
         isAvailable: v.disponible
       })));
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching vehicles', error);
+      toast.error(getErrorMessage(error, t('common.error_generic')));
     } finally {
       setLoading(false);
     }
@@ -69,6 +77,7 @@ export const Home: React.FC = () => {
   const fetchAnalytics = async () => {
     try {
       const response = await api.get('/analytics/fleet');
+      setAnalytics(response.data);
       setAnalytics(response.data);
     } catch (error) {
       console.error('Error fetching analytics', error);

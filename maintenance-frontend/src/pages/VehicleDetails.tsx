@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { getErrorMessage } from '../lib/utils';
+import { toast } from 'sonner';
 import { Navbar } from '../components/Navbar';
 import { MaintenanceItem } from '../components/MaintenanceItem';
 import { ArrowLeft, X, Gauge, FileText, Upload } from 'lucide-react';
@@ -23,6 +25,13 @@ export const VehicleDetails: React.FC = () => {
   const [isItemModalOpen, setIsItemModalOpen] = useState(false);
   const [isAttachmentModalOpen, setIsAttachmentModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isCompleteModalOpen, setIsCompleteModalOpen] = useState(false);
+  const [completingMaintId, setCompletingMaintId] = useState<number | null>(null);
+  const [finalCostInput, setFinalCostInput] = useState<string>('');
+  
+  // Delete Modal State
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ type: 'VEHICLE' | 'MAINTENANCE', id?: number } | null>(null);
 
   // Form states
   const [selectedMaintId, setSelectedMaintId] = useState<number | null>(null);
@@ -64,7 +73,7 @@ export const VehicleDetails: React.FC = () => {
   const handleUpdateMileage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newMileage < vehicle.kilometrajeActual) {
-      alert(t('common.error_km_lower'));
+      toast.error(t('common.error_km_lower'));
       return;
     }
     try {
@@ -72,9 +81,9 @@ export const VehicleDetails: React.FC = () => {
       const response = await api.patch(`/vehicles/${vehicle.id}/mileage`, { nuevoKilometraje: newMileage });
       setVehicle(response.data);
       setIsMileageModalOpen(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating mileage', error);
-      alert(t('common.error_generic'));
+      toast.error(getErrorMessage(error, t('common.error_generic')));
     } finally {
       setSubmitting(false);
     }
@@ -88,9 +97,9 @@ export const VehicleDetails: React.FC = () => {
       setIsMaintModalOpen(false);
       setNewMaint({ tipoMantenimiento: 'CAMBIO_ACEITE', descripcion: '', costoEstimado: 0 });
       fetchData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding maintenance', error);
-      alert(t('common.error_generic'));
+      toast.error(getErrorMessage(error, t('common.error_generic')));
     } finally {
       setSubmitting(false);
     }
@@ -105,9 +114,9 @@ export const VehicleDetails: React.FC = () => {
       setIsItemModalOpen(false);
       setNewItem({ descripcion: '', tipo: 'REPUESTO', costo: 0 });
       fetchData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding item', error);
-      alert(t('common.error_generic'));
+      toast.error(getErrorMessage(error, t('common.error_generic')));
     } finally {
       setSubmitting(false);
     }
@@ -126,9 +135,9 @@ export const VehicleDetails: React.FC = () => {
       setIsAttachmentModalOpen(false);
       setNewAttachment({ file: null });
       fetchData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading file', error);
-      alert(t('common.error_generic'));
+      toast.error(getErrorMessage(error, t('common.error_generic')));
     } finally {
       setSubmitting(false);
     }
@@ -136,30 +145,41 @@ export const VehicleDetails: React.FC = () => {
 
   const handleUpdateStatus = async (id: number, status: 'PENDIENTE' | 'EN_PROCESO' | 'COMPLETADO' | 'CANCELADO') => {
     try {
-      let costoFinal = null;
       if (status === 'COMPLETADO') {
-         // Si tiene items, el backend calcula el costo solo. Si no, preguntamos.
          const m = maintenances.find(item => item.id === id);
          if (!m.items || m.items.length === 0) {
-            const input = prompt(t('common.prompt_cost'), '0');
-            if (input === null) return;
-            costoFinal = parseFloat(input);
+            setCompletingMaintId(id);
+            setFinalCostInput(m.costoEstimado ? m.costoEstimado.toString() : '0');
+            setIsCompleteModalOpen(true);
+            return;
          }
+         await api.patch(`/maintenances/${id}/status`, { nuevoEstado: status, costoFinal: null });
+      } else {
+         await api.patch(`/maintenances/${id}/status`, { nuevoEstado: status });
       }
-      await api.patch(`/maintenances/${id}/status`, { nuevoEstado: status, costoFinal });
       fetchData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating status', error);
+      toast.error(getErrorMessage(error));
     }
   };
 
-  const handleDeleteMaintenance = async (maintId: number) => {
-    if (!window.confirm(t('common.confirm_delete_maintenance'))) return;
+  const handleConfirmCompletion = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!completingMaintId) return;
     try {
-      await api.delete(`/maintenances/${maintId}`);
+      setSubmitting(true);
+      await api.patch(`/maintenances/${completingMaintId}/status`, { 
+        nuevoEstado: 'COMPLETADO', 
+        costoFinal: parseFloat(finalCostInput) 
+      });
+      setIsCompleteModalOpen(false);
       fetchData();
-    } catch (error) {
-      console.error('Error deleting maintenance', error);
+      toast.success(t('maintenance.success_message') || 'Service finalizado correctamente');
+    } catch (error: any) {
+       toast.error(getErrorMessage(error));
+    } finally {
+       setSubmitting(false);
     }
   };
 
@@ -170,21 +190,46 @@ export const VehicleDetails: React.FC = () => {
       const response = await api.put(`/vehicles/${id}`, editVehicle);
       setVehicle(response.data);
       setIsEditModalOpen(false);
-    } catch (error) {
+      toast.success(t('common.success_update') || 'Vehículo actualizado');
+    } catch (error: any) {
       console.error('Error updating vehicle', error);
+      toast.error(getErrorMessage(error));
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleDeleteVehicle = async () => {
-    if (!window.confirm(t('common.confirm_delete_vehicle'))) return;
+  const handleDeleteClick = (type: 'VEHICLE' | 'MAINTENANCE', id?: number) => {
+    setDeleteTarget({ type, id });
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+
     try {
-      await api.delete(`/vehicles/${id}`);
-      navigate('/');
-    } catch (error) {
-      console.error('Error deleting vehicle', error);
+        if (deleteTarget.type === 'VEHICLE') {
+             await api.delete(`/vehicles/${id}`);
+             navigate('/');
+        } else if (deleteTarget.type === 'MAINTENANCE' && deleteTarget.id) {
+             await api.delete(`/maintenances/${deleteTarget.id}`);
+             fetchData();
+        }
+        setIsDeleteModalOpen(false);
+        toast.success('Eliminado correctamente');
+    } catch (error: any) {
+        console.error('Error deleting', error);
+        toast.error(getErrorMessage(error));
+        setIsDeleteModalOpen(false); // Close on error too? Or keep open? black modal style usually closes.
     }
+  };
+
+  const handleDeleteMaintenance = (maintId: number) => {
+      handleDeleteClick('MAINTENANCE', maintId);
+  };
+  
+  const handleDeleteVehicle = () => {
+      handleDeleteClick('VEHICLE');
   };
 
   if (loading || !vehicle) return <div className="min-h-screen flex items-center justify-center italic text-gray-400">Cargando...</div>;
@@ -400,6 +445,63 @@ export const VehicleDetails: React.FC = () => {
                    </div>
                    <button type="submit" disabled={submitting} className="kavak-button-primary w-full py-5 text-[10px] uppercase font-black tracking-widest">Guardar Cambios</button>
                 </form>
+             </motion.div>
+          </div>
+        )}
+
+        {/* Confirm Completion Modal */}
+        {isCompleteModalOpen && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+             <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="bg-white rounded-[40px] p-10 w-full max-w-sm space-y-8">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold tracking-tight">Finalizar Service</h2>
+                  <button onClick={() => setIsCompleteModalOpen(false)}><X/></button>
+                </div>
+                <div className="text-sm text-gray-500 font-medium">
+                   Este service no tiene gastos registrados. Por favor, ingresa el costo final mano a mano.
+                </div>
+                <form onSubmit={handleConfirmCompletion} className="space-y-6">
+                   <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase text-gray-400">Costo Final Real</label>
+                      <div className="flex items-center gap-2 border-b-2 border-gray-100 py-2 focus-within:border-primary transition-colors">
+                         <span className="text-xl font-bold text-gray-400">$</span>
+                         <input 
+                           type="number" 
+                           required 
+                           autoFocus
+                           value={finalCostInput} 
+                           onChange={e => setFinalCostInput(e.target.value)} 
+                           className="w-full outline-none text-3xl font-bold tracking-tight" 
+                         />
+                      </div>
+                   </div>
+                   <button type="submit" disabled={submitting} className="kavak-button-primary w-full py-5 text-[10px] uppercase font-black tracking-widest">
+                      {submitting ? 'Finalizando...' : 'Confirmar Finalización'}
+                   </button>
+                </form>
+             </motion.div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {isDeleteModalOpen && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+             <motion.div initial={{opacity:0, scale:0.95}} animate={{opacity:1, scale:1}} exit={{opacity:0, scale:0.95}} className="bg-white rounded-[40px] p-10 w-full max-w-sm space-y-8 text-center">
+                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto text-red-500 mb-4">
+                   <X size={32} />
+                </div>
+                <div className="space-y-2">
+                   <h2 className="text-2xl font-bold tracking-tight">¿Estás seguro?</h2>
+                   <p className="text-sm text-gray-500 font-medium">
+                     Esta acción es irreversible. Se eliminará el {deleteTarget?.type === 'VEHICLE' ? 'vehículo y todo su historial' : 'registro de mantenimiento'}.
+                   </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                   <button onClick={() => setIsDeleteModalOpen(false)} className="kavak-button-ghost py-4 text-[10px] font-black uppercase tracking-widest">Cancelar</button>
+                   <button onClick={handleConfirmDelete} className="bg-red-500 hover:bg-red-600 text-white rounded-2xl py-4 text-[10px] font-black uppercase tracking-widest transition-colors shadow-lg shadow-red-500/20">
+                     Sí, Eliminar
+                   </button>
+                </div>
              </motion.div>
           </div>
         )}

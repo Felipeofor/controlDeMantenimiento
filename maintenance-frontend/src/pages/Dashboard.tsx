@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { getErrorMessage } from '../lib/utils';
+import { toast } from 'sonner';
 import { Navbar } from '../components/Navbar';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
@@ -18,10 +20,11 @@ export const Dashboard: React.FC = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await api.get('/stats/dashboard');
+        const response = await api.get('/analytics/fleet');
         setStats(response.data);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching stats', error);
+        toast.error(getErrorMessage(error, t('common.error_generic')));
       } finally {
         setLoading(false);
       }
@@ -66,9 +69,9 @@ export const Dashboard: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { label: 'Unidades Totales', value: stats.totalVehicles, icon: Car, color: 'bg-black' },
-            { label: 'En Taller', value: stats.vehiclesInService, icon: Wrench, color: 'bg-primary' },
-            { label: 'Inversión Total', value: `$${stats.totalMaintenanceCost.toLocaleString('es-AR')}`, icon: DollarSign, color: 'bg-black' },
-            { label: 'Costo Promedio', value: `$${stats.averageMaintenanceCost.toLocaleString('es-AR')}`, icon: Activity, color: 'bg-gray-400' },
+            { label: 'En Taller', value: stats.inServiceVehicles, icon: Wrench, color: 'bg-primary' },
+            { label: 'Inversión Total', value: `$${stats.totalSpent?.toLocaleString('es-AR') || '0'}`, icon: DollarSign, color: 'bg-black' },
+            { label: 'Costo Promedio', value: `$${stats.averageMaintenanceCost?.toLocaleString('es-AR') || '0'}`, icon: Activity, color: 'bg-gray-400' },
           ].map((kpi, idx) => (
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
@@ -104,24 +107,26 @@ export const Dashboard: React.FC = () => {
             </div>
             <div className="h-[300px] min-h-[300px] w-full relative">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={typeData} margin={{ top: 20, right: 30, left: 0, bottom: 50 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                  <XAxis 
+                <BarChart 
+                  layout="vertical" 
+                  data={typeData} 
+                  margin={{ top: 20, right: 30, left: 40, bottom: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
+                  <XAxis type="number" hide />
+                  <YAxis 
                     dataKey="name" 
+                    type="category" 
                     axisLine={false} 
                     tickLine={false} 
-                    tick={{ fontSize: 9, fontWeight: 900, textAnchor: 'middle' }}
-                    interval={0}
-                    angle={-45}
-                    textAnchor="end"
-                    height={60}
+                    width={100}
+                    tick={{ fontSize: 10, fontWeight: 700, fill: '#666' }}
                   />
-                  <YAxis hide />
                   <Tooltip 
                     cursor={{ fill: '#f8f8f8' }} 
                     contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', fontSize: '10px', fontWeight: 'bold' }}
                   />
-                  <Bar dataKey="value" fill="#ff213b" radius={[8, 8, 8, 8]} barSize={40} />
+                  <Bar dataKey="value" fill="#ff213b" radius={[0, 8, 8, 0]} barSize={32} label={{ position: 'right', fill: '#000', fontSize: 10, fontWeight: 900 }} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -164,6 +169,44 @@ export const Dashboard: React.FC = () => {
                 <span className="text-[9px] font-black uppercase tracking-widest text-gray-500">Total</span>
                 <span className="text-3xl font-black leading-none">{stats.maintenanceByStatus ? (Object.values(stats.maintenanceByStatus) as number[]).reduce((a: number, b: number) => a + b, 0) : 0}</span>
               </div>
+            </div>
+          </motion.div>
+
+          {/* Brand Cost Analysis - NEW CHART */}
+          <motion.div 
+             initial={{ opacity: 0, scale: 0.98 }}
+             animate={{ opacity: 1, scale: 1 }}
+             transition={{ delay: 0.3 }}
+             className="bg-white p-10 rounded-[48px] border border-gray-100 shadow-sm space-y-8 lg:col-span-2"
+          >
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-bold tracking-tight italic">Costo Promedio por Marca</h3>
+              <div className="bg-blue-50 text-blue-500 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-blue-100">Financial Insights</div>
+            </div>
+            <div className="h-[300px] min-h-[300px] w-full relative">
+              <ResponsiveContainer width="100%" height="100%">
+                 <BarChart data={Object.entries(stats.averageCostByBrand || {}).map(([name, value]) => ({ name, value }))} margin={{ top: 20, right: 30, left: 30, bottom: 50 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                  <XAxis 
+                    dataKey="name" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 10, fontWeight: 700 }}
+                  />
+                  <YAxis 
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{ fontSize: 10, fontWeight: 500 }}
+                    tickFormatter={(value) => `$${value}`}
+                  />
+                  <Tooltip 
+                    cursor={{ fill: '#f8f8f8' }}
+                    contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', fontSize: '10px', fontWeight: 'bold' }}
+                    formatter={(value: number | undefined) => [value ? `$${value?.toLocaleString('es-AR')}` : '$0', 'Costo Promedio']}
+                  />
+                  <Bar dataKey="value" fill="#000000" radius={[8, 8, 8, 8]} barSize={60} />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </motion.div>
         </div>
