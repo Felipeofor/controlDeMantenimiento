@@ -1,0 +1,102 @@
+{
+    "navbar": {
+        "finance": "Financie seu carro",
+        "buy": "Comprar um carro",
+        "sell": "Venda seu carro",
+        "outlet": "Outlet",
+        "dashboard": "Inteligência"
+    },
+    "common": {
+        "back": "Voltar para Frota",
+        "save": "Salvar",
+        "cancel": "Cancelar",
+        "loading": "Consultando banco de dados...",
+        "update": "Atualizar",
+        "confirm": "Confirmar",
+        "start_workshop": "Iniciar Oficina",
+        "finish": "Finalizar",
+        "no_image": "Sem Imagem",
+        "plate": "Placa",
+        "error_km_lower": "A nova quilometragem não pode ser inferior à atual.",
+        "error_description_short": "A descrição deve ter pelo menos 5 caracteres.",
+        "error_generic": "Ocorreu um erro inesperado.",
+        "error_invalid_cost": "Custo inválido.",
+        "prompt_cost": "Qual foi o custo final do serviço?"
+    },
+    "status": {
+        "pending": "Pendente",
+        "in_progress": "Em Andamento",
+        "completed": "Concluído",
+        "cancelled": "Cancelado"
+    },
+    "home": {
+        "dashboard_title": "Painel de Inteligência de Frota",
+        "total_vehicles": "Total de Unidades",
+        "available": "Disponíveis",
+        "in_service": "Na Oficina",
+        "search_placeholder": "Buscar por placa, marca ou modelo...",
+        "register_vehicle": "Registrar Unidade",
+        "empty_fleet": "Não há veículos registrados na frota.",
+        "status_available": "Disponível",
+        "status_in_service": "Em Serviço",
+        "maintenance_alert": "Manutenção Próxima",
+        "total_investment": "Investimento Total",
+        "average_cost": "Custo Médio"
+    },
+    "vehicle_details": {
+        "certified": "Certificado Kavak",
+        "total_invested": "Total Investido",
+        "tech_audit": "Estado Técnico",
+        "last_maint": "Última Manutenção",
+        "total_history": "Histórico Total",
+        "quick_actions": "Ações Rápidas",
+        "update_km": "Atualizar Quilometragem",
+        "schedule_service": "Agendar Serviço",
+        "tech_history": "Histórico Técnico",
+        "no_history": "Não há registros de manutenção para esta unidad.",
+        "reliability_optimal": "Ótimo",
+        "reliability_audit": "Exige Auditoria",
+        "edit_vehicle": "Editar Veículo",
+        "export_pdf": "Exportar Histórico",
+        "records_one": "Registro",
+        "records_other": "Registros",
+        "year": "Ano"
+    },
+    "maintenance": {
+        "mecanica_ligera": "Mecânica Leve",
+        "frenos": "Sistema de Freios",
+        "neumaticos": "Pneus & Alinhamento",
+        "motor": "Engenharia de Motor",
+        "suspension": "Suspensão",
+        "electrico": "Eletrônica & Sensores",
+        "auditoria": "Auditoria Geral",
+        "cost_est": "Orçamento ($)",
+        "description": "Diagnóstico Técnico",
+        "description_placeholder": "Descreva o diagnóstico ou serviço necessário...",
+        "types": {
+            "CAMBIO_ACEITE": "Mecânica Leve",
+            "FRENOS": "Sistema de Freios",
+            "NEUMATICOS": "Pneus & Alinhamento",
+            "MOTOR": "Engenharia de Motor",
+            "SUSPENSION": "Suspensão",
+            "ELECTRICO": "Eletrônica & Sensores",
+            "ESTETICO": "Estética & Detailing",
+            "LLANTAS": "Rodas & Pneus",
+            "TRANSMISION": "Câmbio & Transmissão",
+            "GENERAL": "Check-up Geral",
+            "OTRO": "Auditoria Geral"
+        },
+        "add_doc": "Anexar Nota/Doc",
+        "doc_name": "Nome do Arquivo",
+        "doc_url": "URL do Documento"
+    },
+    "countries": {
+        "select_title": "Selecione um país",
+        "mexico": "México",
+        "brazil": "Brasil",
+        "argentina": "Argentina",
+        "turkey": "Turquia",
+        "chile": "Chile",
+        "uae": "EAU"
+    }
+}

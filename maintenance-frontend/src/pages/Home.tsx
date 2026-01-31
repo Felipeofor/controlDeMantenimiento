@@ -6,22 +6,26 @@ import { useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 export const Home: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [analytics, setAnalytics] = useState<any>(null);
   const [newVehicle, setNewVehicle] = useState({
     patente: '',
     marca: '',
     modelo: '',
     anio: new Date().getFullYear(),
-    kilometrajeActual: 0
+    kilometrajeActual: 0,
+    proximoMantenimientoKm: 0
   });
-  
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newVehicle.patente.trim().length < 6) return alert('La patente es demasiado corta.');
@@ -29,7 +33,7 @@ export const Home: React.FC = () => {
       setSubmitting(true);
       await api.post('/vehicles', newVehicle);
       setIsRegisterModalOpen(false);
-      setNewVehicle({ patente: '', marca: '', modelo: '', anio: new Date().getFullYear(), kilometrajeActual: 0 });
+      setNewVehicle({ patente: '', marca: '', modelo: '', anio: new Date().getFullYear(), kilometrajeActual: 0, proximoMantenimientoKm: 0 });
       fetchVehicles();
     } catch (error) {
       alert('Error al registrar el vehículo.');
@@ -38,32 +42,23 @@ export const Home: React.FC = () => {
     }
   };
 
-  // Stats derived from data
   const totalVehicles = vehicles.length;
   const availableVehicles = vehicles.filter(v => v.isAvailable).length;
   const inServiceVehicles = totalVehicles - availableVehicles;
 
   const chartData = [
-    { name: 'Disponibles', value: availableVehicles, color: '#6600ff' },
-    { name: 'En Taller', value: inServiceVehicles, color: '#ffb800' },
+    { name: t('home.available'), value: availableVehicles, color: '#6600ff' },
+    { name: t('home.in_service'), value: inServiceVehicles, color: '#ffb800' },
   ];
 
   const fetchVehicles = async () => {
     try {
       setLoading(true);
       const response = await api.get('/vehicles');
-      const vehiclesData = response.data;
-      
-      const vehiclesWithStatus = await Promise.all(vehiclesData.map(async (v: any) => {
-        try {
-          const availResponse = await api.get(`/vehicles/${v.id}/availability`);
-          return { ...v, isAvailable: availResponse.data.available };
-        } catch {
-          return { ...v, isAvailable: true };
-        }
-      }));
-
-      setVehicles(vehiclesWithStatus);
+      setVehicles(response.data.map((v: any) => ({
+        ...v,
+        isAvailable: v.disponible
+      })));
     } catch (error) {
       console.error('Error fetching vehicles', error);
     } finally {
@@ -71,51 +66,71 @@ export const Home: React.FC = () => {
     }
   };
 
+  const fetchAnalytics = async () => {
+    try {
+      const response = await api.get('/analytics/fleet');
+      setAnalytics(response.data);
+    } catch (error) {
+      console.error('Error fetching analytics', error);
+    }
+  };
+
   useEffect(() => {
     fetchVehicles();
+    fetchAnalytics();
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20 md:pt-24 pb-12 px-4 md:px-12">
+    <div className="min-h-screen bg-gray-50 pt-20 md:pt-24 pb-12 px-2 md:px-12 overflow-x-hidden">
       <Navbar />
       
-      <main className="max-w-7xl mx-auto space-y-12">
-        <header className="space-y-8">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
-            <div className="space-y-4">
+      <main className="max-w-7xl mx-auto space-y-16">
+        {/* --- HERO SECTION --- */}
+        <section className="relative pt-8 overflow-hidden">
+          <div className="flex flex-col lg:flex-row gap-12 items-start justify-between">
+            <div className="space-y-6 max-w-xl">
               <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col gap-2"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="space-y-4"
               >
-                <h1 className="text-4xl md:text-6xl font-bold text-gray-900 tracking-tight leading-tight">
-                  Felipe, <span className="text-primary italic">continuá tu camino</span>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest">
+                  <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />
+                  Fleet Live Status
+                </div>
+                <h1 className="text-5xl md:text-7xl font-bold text-gray-900 tracking-tighter leading-[0.9]">
+                  Kavak <br />
+                  <span className="text-primary italic">Expert Fleet</span>
                 </h1>
-                <p className="text-gray-500 text-base md:text-xl font-medium max-w-2xl">
-                  Panel de control de flota Kavak Expert. Monitoreo en tiempo real y gestión técnica centralizada.
+                <p className="text-gray-500 text-lg md:text-xl font-medium leading-relaxed">
+                  {t('home.dashboard_title')}
                 </p>
               </motion.div>
 
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4">
-                <div className="flex-grow max-w-xl relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <div className="flex flex-1 items-center gap-4 bg-white border border-gray-100 rounded-2xl px-6 py-4 shadow-sm group focus-within:ring-2 ring-primary/20 transition-all">
+                  <Search size={20} className="text-gray-300 group-hover:text-primary transition-colors" />
                   <input 
                     type="text" 
-                    placeholder="Buscá por modelo o patente..."
-                    className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-kavak shadow-sm focus:ring-4 focus:ring-primary/10 focus:border-primary outline-none transition-all text-gray-900 font-medium"
+                    placeholder={t('home.search_placeholder')}
+                    className="w-full outline-none text-sm font-medium"
                     value={searchTerm}
                     onChange={e => setSearchTerm(e.target.value)}
                   />
                 </div>
+                
                 <div className="flex gap-2">
-                  <button 
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => setIsRegisterModalOpen(true)}
-                    className="kavak-button-primary px-8 py-4 uppercase tracking-[.2em] font-black text-[10px]"
+                    className="bg-black text-white px-8 py-4 rounded-2xl font-bold text-xs uppercase tracking-widest hover:bg-gray-900 transition-all shadow-xl shadow-black/10 flex items-center gap-2 shrink-0"
                   >
-                    Registrar Unidad
-                  </button>
+                    <Plus size={18} />
+                    <span>{t('home.register_vehicle')}</span>
+                  </motion.button>
                   <button 
-                    className="p-4 bg-white border border-gray-200 rounded-kavak hover:bg-gray-50 transition-colors shadow-sm"
+                    className="p-4 bg-white border border-gray-200 rounded-2xl hover:bg-gray-50 transition-colors shadow-sm"
                     onClick={fetchVehicles}
                     title="Actualizar datos"
                   >
@@ -125,72 +140,82 @@ export const Home: React.FC = () => {
               </div>
             </div>
 
+            {/* --- TOP ANALYTICS CLUSTER --- */}
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
-              className="bg-white p-6 rounded-kavak shadow-kavak border border-gray-100 flex items-center gap-8 min-w-[320px] lg:min-w-[420px]"
+              className="w-full lg:w-auto flex-grow grid grid-cols-1 sm:grid-cols-2 gap-4 lg:min-w-[500px]"
             >
-              <div className="h-[120px] w-[120px] shrink-0">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={chartData}
-                      innerRadius={45}
-                      outerRadius={60}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)', fontSize: '10px', fontWeight: 'bold' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="space-y-4 flex-grow">
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Distribución de Flota</span>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-bold">{totalVehicles}</span>
-                    <span className="text-xs text-gray-500 font-bold uppercase tracking-wider">Unidades</span>
+              {/* Pie Chart Card - Highlight */}
+              <div className="bg-black text-white p-8 rounded-[40px] shadow-2xl flex flex-col justify-between overflow-hidden relative group">
+                <div className="relative z-10 flex flex-col gap-10">
+                  <div className="space-y-1">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-gray-500">{t('home.total_vehicles')}</div>
+                    <div className="text-5xl font-bold tracking-tighter">{totalVehicles}</div>
+                  </div>
+                  
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between border-t border-white/10 pt-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-primary" />
+                        <span className="text-[10px] uppercase font-bold text-gray-400">{t('home.available')}</span>
+                      </div>
+                      <span className="text-lg font-bold">{availableVehicles}</span>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-white/10 pt-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-[#ffb800]" />
+                        <span className="text-[10px] uppercase font-bold text-gray-400">{t('home.in_service')}</span>
+                      </div>
+                      <span className="text-lg font-bold">{inServiceVehicles}</span>
+                    </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-full bg-primary"></div>
-                      <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tighter">Disponibles</span>
-                    </div>
-                    <span className="text-lg font-bold block leading-none">{availableVehicles}</span>
+                
+                {/* Background Pie Chart (subtle) */}
+                <div className="absolute top-1/2 -right-10 -translate-y-1/2 w-[220px] h-[220px] opacity-40 blur-[1px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={chartData}
+                        innerRadius={70}
+                        outerRadius={90}
+                        paddingAngle={5}
+                        dataKey="value"
+                      >
+                        {chartData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Analytics Mini Grid */}
+              <div className="grid grid-rows-2 gap-4">
+                <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col justify-center">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">{t('home.total_investment')}</div>
+                  <div className="text-3xl font-bold text-primary tracking-tighter italic">
+                    ${analytics?.totalSpent?.toLocaleString() || '-'}
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-2 h-2 rounded-full bg-[#ffb800]"></div>
-                      <span className="text-[9px] font-bold text-gray-500 uppercase tracking-tighter">En Servicio</span>
-                    </div>
-                    <span className="text-lg font-bold block leading-none">{inServiceVehicles}</span>
+                </div>
+                <div className="bg-white p-8 rounded-[40px] border border-gray-100 shadow-sm flex flex-col justify-center">
+                  <div className="text-[10px] font-black uppercase tracking-widest text-gray-400 mb-1">{t('home.average_cost')}</div>
+                  <div className="text-3xl font-bold text-gray-900 tracking-tighter">
+                    ${analytics?.averageMaintenanceCost?.toLocaleString(undefined, { maximumFractionDigits: 0 }) || '-'}
                   </div>
                 </div>
               </div>
             </motion.div>
           </div>
-        </header>
+        </section>
 
-        <section className="space-y-6">
+        <section className="space-y-8">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="text-lg md:text-xl font-bold text-black italic uppercase italic shrink-0">Vehículos de Flota</h2>
-            <div className="h-[1px] flex-grow bg-gray-200 hidden sm:block"></div>
-            <span className="text-xs md:text-sm text-gray-400 font-medium shrink-0">
-              {vehicles.filter(v => 
-                v.modelo.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                v.patente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                v.marca.toLowerCase().includes(searchTerm.toLowerCase())
-              ).length} Unidades
-            </span>
+            <h2 className="text-xl font-bold italic uppercase tracking-tighter">Vehículos de Flota</h2>
+            <div className="h-[1px] flex-grow bg-gray-200"></div>
           </div>
           
           <motion.div 
@@ -198,116 +223,146 @@ export const Home: React.FC = () => {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8"
           >
             <AnimatePresence mode='popLayout'>
-              {vehicles
-                .filter(v => 
-                  v.modelo.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                  v.patente.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  v.marca.toLowerCase().includes(searchTerm.toLowerCase())
-                )
-                .map((v, idx) => (
-                  <motion.div 
-                    key={v.id} 
-                    layout
-                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: -20 }}
-                    transition={{ duration: 0.2, delay: idx * 0.05 }}
-                    onClick={() => navigate(`/vehicle/${v.id}`)}
-                    className="cursor-pointer"
-                  >
-                    <VehicleCard {...v} />
-                  </motion.div>
-                ))
+              {loading ? (
+                <motion.div key="loading" className="col-span-full py-24 text-center">
+                  <div className="w-12 h-12 border-4 border-gray-100 border-t-primary rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-gray-400 italic text-sm">{t('common.loading')}</p>
+                </motion.div>
+              ) : vehicles.length === 0 ? (
+                <motion.div key="empty" className="col-span-full py-24 text-center text-gray-400 italic">
+                  {t('home.empty_fleet')}
+                </motion.div>
+              ) : vehicles
+                  .filter(v => 
+                    v.modelo.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                    v.patente.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    v.marca.toLowerCase().includes(searchTerm.toLowerCase())
+                  )
+                  .map((v, idx) => (
+                    <motion.div 
+                      key={v.id} 
+                      layout
+                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9, y: -20 }}
+                      transition={{ duration: 0.2, delay: idx * 0.05 }}
+                      onClick={() => navigate(`/vehicle/${v.id}`)}
+                      className="cursor-pointer"
+                    >
+                      <VehicleCard {...v} />
+                    </motion.div>
+                  ))
               }
             </AnimatePresence>
           </motion.div>
         </section>
       </main>
 
-      {/* Register Modal */}
-      {isRegisterModalOpen && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-          <div className="bg-white rounded-kavak w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="p-8 space-y-8">
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold tracking-tight">Nuevo Vehículo</h2>
-                <button 
-                  onClick={() => setIsRegisterModalOpen(false)}
-                  className="text-gray-400 hover:text-black transition-colors"
-                >
-                  <RotateCcw size={24} className="rotate-45" /> 
-                </button>
+      <AnimatePresence>
+        {isRegisterModalOpen && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-[40px] w-full max-w-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+            >
+              <div className="p-8 md:p-10 flex flex-col h-full">
+                <div className="flex items-center justify-between mb-8 overflow-hidden shrink-0">
+                  <h2 className="text-3xl font-bold tracking-tight">{t('home.register_vehicle')}</h2>
+                  <button onClick={() => setIsRegisterModalOpen(false)} className="p-2 hover:bg-gray-50 rounded-full transition-colors">
+                    <X size={24} className="text-gray-400 hover:text-black transition-colors" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleRegister} className="space-y-6 overflow-y-auto pr-2 custom-scrollbar">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Identificación</label>
+                      <input 
+                        required
+                        className="w-full border-b-2 border-gray-100 py-2 outline-none focus:border-primary transition-colors text-lg font-bold uppercase tracking-widest bg-transparent"
+                        placeholder="Patente (ej. ABC 123)"
+                        value={newVehicle.patente}
+                        onChange={e => setNewVehicle({...newVehicle, patente: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                       <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Año Fabricación</label>
+                       <input 
+                         required
+                         type="number"
+                         className="w-full border-b-2 border-gray-100 py-2 outline-none focus:border-primary transition-colors text-lg font-bold bg-transparent"
+                         value={newVehicle.anio}
+                         onChange={e => setNewVehicle({...newVehicle, anio: parseInt(e.target.value)})}
+                       />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Marca</label>
+                      <input 
+                        required
+                        className="w-full border-b-2 border-gray-100 py-2 outline-none focus:border-primary transition-colors text-lg font-bold bg-transparent"
+                        placeholder="Ej. Toyota"
+                        value={newVehicle.marca}
+                        onChange={e => setNewVehicle({...newVehicle, marca: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Modelo</label>
+                      <input 
+                        required
+                        className="w-full border-b-2 border-gray-100 py-2 outline-none focus:border-primary transition-colors text-lg font-bold bg-transparent"
+                        placeholder="Ej. Corolla"
+                        value={newVehicle.modelo}
+                        onChange={e => setNewVehicle({...newVehicle, modelo: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Odómetro Actual</label>
+                      <div className="flex items-center gap-3 border-b-2 border-gray-100 py-2 focus-within:border-primary transition-colors">
+                        <Gauge size={18} className="text-gray-400" />
+                        <input 
+                          required
+                          type="number"
+                          className="w-full outline-none text-lg font-bold bg-transparent"
+                          placeholder="Kilometraje"
+                          value={newVehicle.kilometrajeActual}
+                          onChange={e => setNewVehicle({...newVehicle, kilometrajeActual: parseFloat(e.target.value)})}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 italic">Plan de Mantenimiento</label>
+                      <div className="flex items-center gap-3 border-b-2 border-gray-100 py-2 focus-within:border-primary transition-colors">
+                        <Gauge size={18} className="text-gray-400" />
+                        <input 
+                          required
+                          type="number"
+                          className="w-full outline-none text-lg font-bold bg-transparent"
+                          placeholder="Próximo Service (KM)"
+                          value={newVehicle.proximoMantenimientoKm}
+                          onChange={e => setNewVehicle({...newVehicle, proximoMantenimientoKm: parseFloat(e.target.value)})}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-6 shrink-0">
+                    <motion.button 
+                      whileTap={{ scale: 0.98 }}
+                      type="submit" 
+                      disabled={submitting}
+                      className="kavak-button-primary w-full py-5 uppercase tracking-[.3em] font-black text-xs disabled:opacity-50 shadow-xl shadow-primary/20"
+                    >
+                      {submitting ? t('common.save') + '...' : t('common.save')}
+                    </motion.button>
+                  </div>
+                </form>
               </div>
-
-              <form onSubmit={handleRegister} className="space-y-6">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Patente</label>
-                    <input 
-                      required
-                      className="w-full border-b border-gray-200 py-2 outline-none focus:border-primary transition-colors text-sm font-bold uppercase tracking-widest"
-                      placeholder="ABC 123"
-                      value={newVehicle.patente}
-                      onChange={e => setNewVehicle({...newVehicle, patente: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Año</label>
-                    <input 
-                      required
-                      type="number"
-                      className="w-full border-b border-gray-200 py-2 outline-none focus:border-primary transition-colors text-sm font-bold"
-                      value={newVehicle.anio}
-                      onChange={e => setNewVehicle({...newVehicle, anio: parseInt(e.target.value)})}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Marca</label>
-                    <input 
-                      required
-                      className="w-full border-b border-gray-200 py-2 outline-none focus:border-primary transition-colors text-sm font-bold"
-                      placeholder="Ej. Toyota"
-                      value={newVehicle.marca}
-                      onChange={e => setNewVehicle({...newVehicle, marca: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Modelo</label>
-                    <input 
-                      required
-                      className="w-full border-b border-gray-200 py-2 outline-none focus:border-primary transition-colors text-sm font-bold"
-                      placeholder="Ej. Corolla"
-                      value={newVehicle.modelo}
-                      onChange={e => setNewVehicle({...newVehicle, modelo: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Kilometraje Inicial</label>
-                    <input 
-                      required
-                      type="number"
-                      className="w-full border-b border-gray-200 py-2 outline-none focus:border-primary transition-colors text-sm font-bold"
-                      value={newVehicle.kilometrajeActual}
-                      onChange={e => setNewVehicle({...newVehicle, kilometrajeActual: parseFloat(e.target.value)})}
-                    />
-                  </div>
-                </div>
-
-                <button 
-                  type="submit" 
-                  disabled={submitting}
-                  className="kavak-button kavak-button-primary w-full py-4 uppercase tracking-[.2em] font-black text-xs disabled:opacity-50"
-                >
-                  {submitting ? 'Guardando...' : 'Guardar Vehículo'}
-                </button>
-              </form>
-            </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 };

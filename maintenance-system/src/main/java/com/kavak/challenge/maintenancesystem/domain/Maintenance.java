@@ -39,4 +39,10 @@ public class Maintenance {
     private Double costoEstimado;
 
     private Double costoFinal;
+
+    @OneToMany(mappedBy = "maintenance", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<Attachment> adjuntos;
+
+    @OneToMany(mappedBy = "maintenance", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<MaintenanceItem> items;
 }

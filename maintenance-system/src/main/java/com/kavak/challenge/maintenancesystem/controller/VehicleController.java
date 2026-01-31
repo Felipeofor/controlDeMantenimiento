@@ -26,13 +26,14 @@ public class VehicleController {
     }
 
     @PostMapping
-    public ResponseEntity<VehicleDTO> register(@RequestBody VehicleDTO dto) {
+    public ResponseEntity<VehicleDTO> register(@jakarta.validation.Valid @RequestBody VehicleDTO dto) {
         Vehicle vehicle = Vehicle.builder()
                 .patente(dto.getPatente())
                 .marca(dto.getMarca())
                 .modelo(dto.getModelo())
                 .anio(dto.getAnio())
                 .kilometrajeActual(dto.getKilometrajeActual())
+                .proximoMantenimientoKm(dto.getProximoMantenimientoKm())
                 .build();
 
         return ResponseEntity.ok(convertToDto(vehicleService.registerVehicle(vehicle)));
@@ -71,6 +72,25 @@ public class VehicleController {
                 "totalCost", vehicleService.calculateTotalCost(vehicle)));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        vehicleService.deleteVehicle(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<VehicleDTO> update(@PathVariable Long id,
+            @jakarta.validation.Valid @RequestBody VehicleDTO dto) {
+        Vehicle vehicle = Vehicle.builder()
+                .patente(dto.getPatente())
+                .marca(dto.getMarca())
+                .modelo(dto.getModelo())
+                .anio(dto.getAnio())
+                .proximoMantenimientoKm(dto.getProximoMantenimientoKm())
+                .build();
+        return ResponseEntity.ok(convertToDto(vehicleService.updateVehicle(id, vehicle)));
+    }
+
     private VehicleDTO convertToDto(Vehicle vehicle) {
         VehicleDTO dto = new VehicleDTO();
         dto.setId(vehicle.getId());
@@ -79,6 +99,9 @@ public class VehicleController {
         dto.setModelo(vehicle.getModelo());
         dto.setAnio(vehicle.getAnio());
         dto.setKilometrajeActual(vehicle.getKilometrajeActual());
+        dto.setProximoMantenimientoKm(vehicle.getProximoMantenimientoKm());
+        dto.setRequiereMantenimiento(vehicleService.requiresMaintenance(vehicle));
+        dto.setDisponible(vehicleService.isAvailable(vehicle));
         return dto;
     }
 }

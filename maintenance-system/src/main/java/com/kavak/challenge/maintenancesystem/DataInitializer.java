@@ -24,6 +24,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .modelo("Corolla")
                                         .anio(2022)
                                         .kilometrajeActual(15400.0)
+                                        .proximoMantenimientoKm(20000.0)
                                         .build();
 
                         Vehicle vento = Vehicle.builder()
@@ -32,6 +33,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .modelo("Vento")
                                         .anio(2021)
                                         .kilometrajeActual(42000.0)
+                                        .proximoMantenimientoKm(40000.0)
                                         .build();
 
                         Vehicle cronos = Vehicle.builder()
@@ -40,6 +42,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .modelo("Cronos")
                                         .anio(2023)
                                         .kilometrajeActual(8200.0)
+                                        .proximoMantenimientoKm(10000.0)
                                         .build();
 
                         Vehicle p208 = Vehicle.builder()
@@ -48,10 +51,11 @@ public class DataInitializer implements CommandLineRunner {
                                         .modelo("208")
                                         .anio(2024)
                                         .kilometrajeActual(27400.0)
+                                        .proximoMantenimientoKm(30000.0)
                                         .build();
 
                         List<Vehicle> initialVehicles = List.of(corolla, vento, cronos, p208);
-                        vehicleRepository.saveAll(initialVehicles);
+                        vehicleRepository.saveAll((Iterable<Vehicle>) initialVehicles);
 
                         // Seed some maintenance for the vento
                         Maintenance m1 = Maintenance.builder()
@@ -74,7 +78,7 @@ public class DataInitializer implements CommandLineRunner {
                                         .build();
 
                         List<Maintenance> initialMaintenances = List.of(m1, m2);
-                        maintenanceRepository.saveAll(initialMaintenances);
+                        maintenanceRepository.saveAll((Iterable<Maintenance>) initialMaintenances);
                 }
         }
 }

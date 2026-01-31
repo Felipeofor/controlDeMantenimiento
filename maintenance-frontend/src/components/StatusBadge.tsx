@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { clsx } from 'clsx';
 
 interface BadgeProps {
@@ -6,6 +7,8 @@ interface BadgeProps {
 }
 
 export const StatusBadge: React.FC<BadgeProps> = ({ status }) => {
+  const { t } = useTranslation();
+  
   const styles = {
     PENDIENTE: "text-gray-500 bg-gray-100",
     EN_PROCESO: "text-blue-600 bg-blue-50",
@@ -20,13 +23,20 @@ export const StatusBadge: React.FC<BadgeProps> = ({ status }) => {
     CANCELADO: "bg-red-500",
   };
 
+  const labels = {
+    PENDIENTE: t('status.pending'),
+    EN_PROCESO: t('status.in_progress'),
+    COMPLETADO: t('status.completed'),
+    CANCELADO: t('status.cancelled'),
+  };
+
   return (
     <span className={clsx(
       "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-2",
       styles[status]
     )}>
       <div className={clsx("w-1.5 h-1.5 rounded-full", dots[status])}></div>
-      {status.replace('_', ' ').toLowerCase()}
+      {labels[status]}
     </span>
   );
 };

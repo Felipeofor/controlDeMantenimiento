@@ -1,0 +1,23 @@
+# Maven
+target/
+*.class
+
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Local App Data / Logs
+uploads/
+*.log
+.gemini/
+.agent/
+brain/

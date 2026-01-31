@@ -32,6 +32,10 @@ public class Vehicle {
     @Column(nullable = false)
     private Double kilometrajeActual;
 
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "double precision default 0")
+    private Double proximoMantenimientoKm = 0.0;
+
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL)
     private List<Maintenance> maintenances;
 }
