@@ -1,5 +1,6 @@
 import React from 'react';
-import { Menu, User, Globe, X } from 'lucide-react';
+import { Menu, User, Globe, X, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { LanguageSelector } from './LanguageSelector';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,6 +10,7 @@ export const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isLangOpen, setIsLangOpen] = React.useState(false);
   const { i18n, t } = useTranslation();
+  const { logout } = useAuth();
 
   const currentFlag = i18n.language.startsWith('es') ? '🇦🇷' : 
                      i18n.language.startsWith('pt') ? '🇧🇷' : '🇺🇸';
@@ -40,6 +42,13 @@ export const Navbar: React.FC = () => {
             <User size={18} className="text-gray-600" />
             <span className="text-sm font-semibold text-gray-800 hidden sm:inline">Felipe Omar</span>
           </div>
+          <button 
+            onClick={logout}
+            className="hidden md:flex items-center gap-2 p-2 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-full transition-colors"
+            title={t('common.logout') || 'Cerrar Sesión'}
+          >
+            <LogOut size={20} />
+          </button>
           <button className="p-1 lg:hidden text-gray-600" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             <Menu size={24} />
           </button>
@@ -79,6 +88,16 @@ export const Navbar: React.FC = () => {
               </div>
 
               <div className="mt-auto space-y-6 pt-8 border-t border-gray-100">
+                <button 
+                  onClick={() => {
+                    logout();
+                    setIsMenuOpen(false);
+                  }}
+                  className="flex items-center gap-4 text-red-500 font-bold uppercase tracking-widest hover:text-red-600 transition-colors"
+                >
+                  <LogOut size={20} />
+                  <span>{t('common.logout') || 'Cerrar Sesión'}</span>
+                </button>
                 <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-2xl">
                   <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center text-white">
                     <User size={24} />

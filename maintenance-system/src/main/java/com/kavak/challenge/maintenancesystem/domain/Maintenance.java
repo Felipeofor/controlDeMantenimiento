@@ -21,6 +21,10 @@ public class Maintenance {
     @JoinColumn(name = "vehicle_id", nullable = false)
     private Vehicle vehicle;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tenant_id", nullable = false)
+    private Tenant tenant;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MaintenanceType tipoMantenimiento;

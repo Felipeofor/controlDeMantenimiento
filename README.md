@@ -1,59 +1,90 @@
-# Kavak - Sistema de Control de Mantenimiento (South Cone)
+# Sistema de Mantenimiento - Edición SaaS 🚀
+> Transformado de un desafío de un solo tenant a una Plataforma SaaS Multi-Tenant escalable.
 
-Este proyecto representa una solución de nivel senior para la gestión de flota de vehículos usados de Kavak, priorizando la **mantenibilidad**, **explicabilidad** y **performance**.
+![React](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-blue) ![Spring Boot](https://img.shields.io/badge/Backend-Spring%20Boot%203-green) ![Java](https://img.shields.io/badge/Java-17-orange) ![Security](https://img.shields.io/badge/Auth-JWT%20%2B%20Spring%20Security-red)
 
-## 🏗️ Arquitectura y Diseño
+## 🏢 Resumen del Proyecto
+Este proyecto es un sistema de gestión de mantenimiento de vehículos diseñado para **gestores de flotas**.
+Originalmente un desafío técnico, ha sido re-arquitectado en una plataforma **SaaS Multi-Tenant** (Software as a Service), permitiendo que múltiples organizaciones ("Tenants") gestionen sus propias flotas en completo aislamiento dentro de la misma infraestructura.
 
-### Decisiones Técnicas
-- **Separación de Responsabilidades**: Arquitectura en capas clara (`Controller` -> `Service` -> `Repository` -> `Domain`).
-- **Domain Driven Alignment**: El modelo de datos refleja el lenguaje del negocio (Patente, Kilometraje, Mantenimiento).
-- **API First**: Uso estricto de DTOs para evitar el leak de entidades JPA al frontend y permitir evoluciones de contrato independientes.
-- **Optimización de I/O**: Implementación de disponibilidad pre-calculada en el DTO de vehículos para evitar el problema de N+1 queries desde la UI.
+---
 
-### 🛡️ Reglas de Negocio Implementadas
-- **Máquina de Estados**: Las transiciones de mantenimiento están validadas para prevenir flujos imposibles (ej. no se puede saltar de PENDIENTE a COMPLETADO directamente).
-- **Cálculo de Disponibilidad**: Un vehículo se marca automáticamente como **NO DISPONIBLE** si tiene alguna intervención `PENDIENTE` o `EN_PROCESO`.
-- **Integridad Financiera**: El costo total de mantenimiento se calcula exclusivamente sobre tareas `COMPLETADO` con un `costoFinal` verificado.
+## ✨ Características Clave (Transformación SaaS)
 
-## 🚀 Cómo Ejecutar (Quick Start)
+### 🔐 Seguridad e Identidad (IAM)
+*   **Autenticación JWT**: Autenticación segura basada en tokens sin estado ("stateless").
+*   **Control de Acceso Basado en Roles (RBAC)**: Soporte para roles de `ADMIN`, `MANAGER` y `TECNICO`.
+*   **Almacenamiento Seguro de Contraseñas**: Encriptación BCrypt para todas las contraseñas de usuario.
 
-### Opción A: Docker (Recomendada)
-Para levantar todo el ecosistema (PostgreSQL + API) en un solo paso:
-```bash
-docker-compose up --build
-```
-> [!NOTE]
-> El backend estará disponible en `http://localhost:8080` y la DB en el puerto `5432`.
+### 🌐 Arquitectura Multi-Tenant
+*   **Aislamiento de Datos**: Lógica de "Base de Datos Compartida, Esquema Separado" (Shared Database, Separated Schema).
+*   **Contexto del Tenant**: Intercepción automática de solicitudes para identificar al tenant desde el usuario autenticado.
+*   **Seguridad a Nivel de Fila**: Todas las consultas de datos (Vehículos, Mantenimientos) se filtran automáticamente por `tenant_id` a nivel de repositorio.
 
-### Opción B: Manual
-**Backend:**
+### 💻 Frontend Moderno
+*   **Contexto de Auth**: Contexto de React para gestionar sesiones de usuario globalmente.
+*   **Rutas Protegidas**: Redirección automática para acceso no autenticado.
+*   **Dashboard**: Estado de la flota en tiempo real y seguimiento de mantenimiento.
+*   **Gestión de Vehículos**: CRUD completo con datos conscientes del tenant.
+
+---
+
+## 🛠️ Stack Tecnológico
+
+### Backend (`maintenance-system`)
+*   **Java 17**
+*   **Spring Boot 3.3.4**
+*   **Spring Security & JWT**
+*   **Spring Data JPA (Hibernate)**
+*   **Base de Datos H2** (En memoria para Dev/Test)
+*   **Docker** (Opcional para contenedorización)
+
+### Frontend (`maintenance-frontend`)
+*   **React 18**
+*   **TypeScript**
+*   **Vite**
+*   **TailwindCSS**
+*   **Iconos Lucide**
+*   **Axios** (Cliente API Centralizado con Interceptores)
+
+---
+
+## 🚀 Comenzando
+
+### 1. Configuración del Backend
 ```bash
 cd maintenance-system
-./mvnw clean install
-./mvnw spring-boot:run
+mvn clean install
+mvn spring-boot:run
 ```
-**Frontend:**
+*   El servidor inicia en `http://localhost:8080`
+*   **Nota**: La base de datos H2 es volátil. **Reiniciar el servidor restablece todos los datos.**
+
+### 2. Configuración del Frontend
 ```bash
 cd maintenance-frontend
 npm install
 npm run dev
 ```
+*   La aplicación inicia en `http://localhost:5173`
 
-## 🧪 Calidad y Testing
-Se incluyeron tests unitarios críticos que validan la lógica central sin dependencia de DB externa:
-- `VehicleServiceTest`: Validación de disponibilidad y sumatoria de costos.
-- `MaintenanceServiceTest`: Validación de transiciones de estado y excepciones de negocio.
+---
 
-Ejecutar tests:
-```bash
-./mvnw test
-```
+## 🧪 Cómo probar Multi-Tenancy
+Hemos sembrado la base de datos con dos tenants distintos para pruebas:
 
-## 📝 Documentación de API
-Una vez iniciada la aplicación, puedes acceder a la documentación interactiva en:
-👉 `http://localhost:8080/swagger-ui/index.html`
+### Opción A: Kavak Demo (Por defecto)
+> Contiene vehículos y registros de mantenimiento precargados.
+*   **Usuario**: `admin@kavak.com`
+*   **Contraseña**: `password`
 
-## 💭 Supuestos y Criterios
-1. **Unicidad de Patente**: Se asume el formato estándar regional para validaciones por regex.
-2. **Cascada de Datos**: Al eliminar un vehículo, se eliminan sus mantenimientos asociados para mantener la integridad referencial.
-3. **Escalabilidad**: El diseño soporta fácilmente la adición de autenticación (Spring Security) y auditoría avanzada.
+### Opción B: Uber Fleet (Lienzo en blanco)
+> Un tenant completamente vacío para verificar el aislamiento de datos.
+*   **Usuario**: `uber@kavak.com`
+*   **Contraseña**: `password`
+
+**Pasos de Verificación:**
+1.  Inicia sesión como **Admin de Kavak**. Deberías ver 4 vehículos.
+2.  Cierra sesión.
+3.  Inicia sesión como **Admin de Uber**. Deberías ver **0 vehículos**.
+4.  Crea un vehículo como Uber. NO aparecerá en el Dashboard de Kavak.

@@ -10,4 +10,6 @@ public interface MaintenanceRepository extends JpaRepository<Maintenance, Long> 
     List<Maintenance> findByVehicle(Vehicle vehicle);
 
     List<Maintenance> findByVehicleAndEstadoIn(Vehicle vehicle, List<MaintenanceStatus> estados);
+
+    List<Maintenance> findByTenant(com.kavak.challenge.maintenancesystem.domain.Tenant tenant);
 }

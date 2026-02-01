@@ -12,5 +12,10 @@ public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
     @EntityGraph(attributePaths = "maintenances")
     List<Vehicle> findAll();
 
-    Optional<Vehicle> findByPatente(String patente);
+    java.util.Optional<Vehicle> findByPatente(String patente);
+
+    List<Vehicle> findAllByTenant(com.kavak.challenge.maintenancesystem.domain.Tenant tenant);
+
+    Optional<Vehicle> findByPatenteAndTenant(String patente,
+            com.kavak.challenge.maintenancesystem.domain.Tenant tenant);
 }

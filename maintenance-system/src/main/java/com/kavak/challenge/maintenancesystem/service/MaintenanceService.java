@@ -29,6 +29,7 @@ public class MaintenanceService {
         log.info("Registrando nuevo mantenimiento para vehículo ID: {}", maintenance.getVehicle().getId());
         maintenance.setFechaCreacion(LocalDateTime.now());
         maintenance.setEstado(MaintenanceStatus.PENDIENTE);
+        maintenance.setTenant(com.kavak.challenge.maintenancesystem.config.TenantContext.getCurrentTenant());
         Maintenance saved = maintenanceRepository.save(maintenance);
         log.info("Mantenimiento registrado con éxito. ID: {}", saved.getId());
         return saved;

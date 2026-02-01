@@ -6,6 +6,7 @@ import com.kavak.challenge.maintenancesystem.domain.Vehicle;
 import com.kavak.challenge.maintenancesystem.dto.AnalyticsDTO;
 import com.kavak.challenge.maintenancesystem.repository.MaintenanceRepository;
 import com.kavak.challenge.maintenancesystem.repository.VehicleRepository;
+import com.kavak.challenge.maintenancesystem.config.TenantContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -21,8 +22,9 @@ public class AnalyticsService {
         private final VehicleService vehicleService;
 
         public AnalyticsDTO getFleetAnalytics() {
-                List<Vehicle> allVehicles = vehicleRepository.findAll();
-                List<Maintenance> allMaintenances = maintenanceRepository.findAll();
+                List<Vehicle> allVehicles = vehicleRepository.findAllByTenant(TenantContext.getCurrentTenant());
+                List<Maintenance> allMaintenances = maintenanceRepository
+                                .findByTenant(TenantContext.getCurrentTenant());
 
                 long totalVehicles = allVehicles.size();
                 long availableVehicles = allVehicles.stream().filter(vehicleService::isAvailable).count();

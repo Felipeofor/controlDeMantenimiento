@@ -18,12 +18,18 @@ public class VehicleService {
     private final VehicleRepository vehicleRepository;
 
     public List<Vehicle> getAll() {
-        return vehicleRepository.findAll();
+        return vehicleRepository
+                .findAllByTenant(com.kavak.challenge.maintenancesystem.config.TenantContext.getCurrentTenant());
     }
 
     @Transactional
     public Vehicle registerVehicle(Vehicle vehicle) {
         log.info("Registrando nuevo vehículo con patente: {}", vehicle.getPatente());
+        if (vehicleRepository.findByPatente(vehicle.getPatente()).isPresent()) {
+            throw new com.kavak.challenge.maintenancesystem.exception.BusinessException(
+                    "El vehículo con patente " + vehicle.getPatente() + " ya está registrado en otra flota.");
+        }
+        vehicle.setTenant(com.kavak.challenge.maintenancesystem.config.TenantContext.getCurrentTenant());
         return vehicleRepository.save(vehicle);
     }
 
@@ -47,7 +53,9 @@ public class VehicleService {
     }
 
     public Vehicle getByPatente(String patente) {
-        return vehicleRepository.findByPatente(patente)
+        return vehicleRepository
+                .findByPatenteAndTenant(patente,
+                        com.kavak.challenge.maintenancesystem.config.TenantContext.getCurrentTenant())
                 .orElseThrow(
                         () -> new ResourceNotFoundException("Vehículo con patente " + patente + " no encontrado."));
     }

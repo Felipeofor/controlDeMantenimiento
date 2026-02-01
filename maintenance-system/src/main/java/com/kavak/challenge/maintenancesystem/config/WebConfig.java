@@ -23,11 +23,14 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations(resourceLocation);
     }
 
-    @Override
-    public void addCorsMappings(org.springframework.web.servlet.config.annotation.CorsRegistry registry) {
-        registry.addMapping("/api/**")
-                .allowedOrigins("*")
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                .allowedHeaders("*");
-    }
+    // @Override
+    // public void
+    // addCorsMappings(org.springframework.web.servlet.config.annotation.CorsRegistry
+    // registry) {
+    // registry.addMapping("/api/**")
+    // .allowedOrigins("http://localhost:5173")
+    // .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+    // .allowedHeaders("*")
+    // .allowCredentials(true);
+    // }
 }
