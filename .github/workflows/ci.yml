@@ -1,0 +1,42 @@
+name: Main Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  backend-test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Build and Test with Maven
+      working-directory: ./maintenance-system
+      run: mvn -B verify
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: maintenance-frontend/package-lock.json
+        
+    - name: Install dependencies
+      working-directory: ./maintenance-frontend
+      run: npm ci
+      
+    - name: Build Frontend
+      working-directory: ./maintenance-frontend
+      run: npm run build

@@ -2,25 +2,24 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AR, BR, US, MX, TR, CL, AE } from 'country-flag-icons/react/3x2';
 
 interface LanguageSelectorProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-
-
 export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ isOpen, onClose }) => {
   const { i18n, t } = useTranslation();
 
   const countries = [
-    { code: 'es', name: t('countries.argentina'), flag: '🇦🇷' },
-    { code: 'pt', name: t('countries.brazil'), flag: '🇧🇷' },
-    { code: 'en', name: 'USA / International', flag: '🇺🇸' },
-    { code: 'es', name: t('countries.mexico'), flag: '🇲🇽' },
-    { code: 'en', name: t('countries.turkey'), flag: '🇹🇷' },
-    { code: 'es', name: t('countries.chile'), flag: '🇨🇱' },
-    { code: 'en', name: t('countries.uae'), flag: '🇦🇪' },
+    { code: 'es', name: t('countries.argentina'), Flag: AR },
+    { code: 'pt', name: t('countries.brazil'), Flag: BR },
+    { code: 'en', name: 'USA / International', Flag: US },
+    { code: 'es', name: t('countries.mexico'), Flag: MX },
+    { code: 'en', name: t('countries.turkey'), Flag: TR },
+    { code: 'es', name: t('countries.chile'), Flag: CL },
+    { code: 'en', name: t('countries.uae'), Flag: AE },
   ];
 
   const handleLanguageChange = (code: string) => {
@@ -68,7 +67,9 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ isOpen, onCl
                       className="w-full flex items-center justify-between p-4 rounded-2xl hover:bg-gray-50 transition-colors group"
                     >
                       <div className="flex items-center gap-4">
-                        <span className="text-2xl">{country.flag}</span>
+                        <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 shadow-sm border border-gray-100">
+                           <country.Flag title={country.name} className="w-full h-full object-cover scale-150" />
+                        </div>
                         <span className={`font-medium ${isSelected ? 'text-black font-bold' : 'text-gray-600'}`}>
                           {country.name}
                         </span>

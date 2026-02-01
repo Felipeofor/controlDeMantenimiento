@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { LanguageSelector } from './LanguageSelector';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { AR, BR, US } from 'country-flag-icons/react/3x2';
 
 export const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -12,8 +13,8 @@ export const Navbar: React.FC = () => {
   const { i18n, t } = useTranslation();
   const { logout, user } = useAuth();
 
-  const currentFlag = i18n.language.startsWith('es') ? '🇦🇷' : 
-                     i18n.language.startsWith('pt') ? '🇧🇷' : '🇺🇸';
+  const CurrentFlag = i18n.language.startsWith('es') ? AR : 
+                     i18n.language.startsWith('pt') ? BR : US;
   
   const userName = user ? `${user.firstName} ${user.lastName}` : 'Usuario';
 
@@ -36,8 +37,9 @@ export const Navbar: React.FC = () => {
             onClick={() => setIsLangOpen(true)}
             className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-full transition-colors order-last md:order-none"
           >
-            <span className="text-xl leading-none">{currentFlag}</span>
-            <Globe size={18} className="text-gray-400 hidden md:block" />
+            <div className="w-6 h-6 rounded-full overflow-hidden shadow-sm border border-gray-100 relative">
+               <CurrentFlag className="absolute inset-0 w-full h-full object-cover scale-150" />
+            </div>
           </button>
           
           <div className="flex items-center gap-2 border border-gray-200 rounded-full px-4 py-1.5 hover:shadow-sm cursor-pointer transition-all">
