@@ -15,6 +15,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   backend:
     build:
@@ -29,6 +31,8 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      APPLICATION_SECURITY_JWT_SECRET_KEY: ${JWT_SECRET:-404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+      APPLICATION_SECURITY_JWT_EXPIRATION: 86400000
     depends_on:
       db:
         condition: service_healthy
@@ -37,9 +41,14 @@ services:
     build:
       context: ./maintenance-frontend
       dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:8080/api
     container_name: maintenance-ui
     ports:
       - "80:80"
     depends_on:
       - backend
     restart: always
+
+volumes:
+  postgres_data:

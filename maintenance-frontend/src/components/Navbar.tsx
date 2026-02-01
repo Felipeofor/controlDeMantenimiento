@@ -10,10 +10,12 @@ export const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
   const [isLangOpen, setIsLangOpen] = React.useState(false);
   const { i18n, t } = useTranslation();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const currentFlag = i18n.language.startsWith('es') ? '🇦🇷' : 
                      i18n.language.startsWith('pt') ? '🇧🇷' : '🇺🇸';
+  
+  const userName = user ? `${user.firstName} ${user.lastName}` : 'Usuario';
 
   return (
     <>
@@ -40,7 +42,7 @@ export const Navbar: React.FC = () => {
           
           <div className="flex items-center gap-2 border border-gray-200 rounded-full px-4 py-1.5 hover:shadow-sm cursor-pointer transition-all">
             <User size={18} className="text-gray-600" />
-            <span className="text-sm font-semibold text-gray-800 hidden sm:inline">Felipe Omar</span>
+            <span className="text-sm font-semibold text-gray-800 hidden sm:inline">{userName}</span>
           </div>
           <button 
             onClick={logout}
@@ -104,7 +106,7 @@ export const Navbar: React.FC = () => {
                   </div>
                   <div>
                     <div className="text-xs font-black uppercase tracking-widest text-gray-400">{t('common.my_account')}</div>
-                    <div className="font-bold">Felipe Omar</div>
+                    <div className="font-bold">{userName}</div>
                   </div>
                 </div>
               </div>

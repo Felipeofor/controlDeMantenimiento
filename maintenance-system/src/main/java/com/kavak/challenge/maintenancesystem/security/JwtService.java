@@ -19,7 +19,9 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    @Value("${application.security.jwt.secret-key}")
+    // Default key for DEVELOPMENT ONLY. In production, this must be overridden by
+    // environment variable.
+    @Value("${application.security.jwt.secret-key:7756468548653243546843543546873541687351654354654354165435165413}")
     private String secretKey;
 
     @Value("${application.security.jwt.expiration:86400000}")
@@ -40,6 +42,8 @@ public class JwtService {
             User user = (User) userDetails;
             extraClaims.put("role", user.getRole());
             extraClaims.put("tenantId", user.getTenant().getId());
+            extraClaims.put("firstName", user.getFirstName());
+            extraClaims.put("lastName", user.getLastName());
         }
         return generateToken(extraClaims, userDetails);
     }
