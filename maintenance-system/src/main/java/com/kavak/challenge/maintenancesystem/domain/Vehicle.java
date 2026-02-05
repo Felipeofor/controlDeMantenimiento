@@ -2,6 +2,7 @@ package com.kavak.challenge.maintenancesystem.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -36,8 +37,9 @@ public class Vehicle {
     @Column(nullable = false, columnDefinition = "double precision default 0")
     private Double proximoMantenimientoKm = 0.0;
 
+    @Builder.Default
     @OneToMany(mappedBy = "vehicle", cascade = CascadeType.ALL)
-    private List<Maintenance> maintenances;
+    private List<Maintenance> maintenances = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tenant_id", nullable = false)

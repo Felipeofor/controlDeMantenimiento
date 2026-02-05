@@ -134,7 +134,8 @@
         "cost": "Custo",
         "spare_part": "Peça",
         "labor": "Mão de Obra",
-        "other": "Outro"
+        "other": "Outro",
+        "confirm_action": "Confirmar"
     },
     "dashboard": {
         "title_highlight": "de Frota",

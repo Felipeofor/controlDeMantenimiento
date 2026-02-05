@@ -104,16 +104,16 @@
         "total_investment": "Inversión Total",
         "estimated_cost": "Costo Estimado",
         "load_expense": "Cargar Gasto",
-        "success_message": "Service finalizado correctamente"
+        "success_message": "Servicio finalizado correctamente"
     },
     "modals": {
         "register_title": "Registrar Unidad",
         "update_km_title": "Actualizar KM",
-        "schedule_service_title": "Programar Service",
+        "schedule_service_title": "Programar Servicio",
         "add_expense_title": "Cargar Gasto",
         "upload_file_title": "Adjuntar Archivo",
         "edit_vehicle_title": "Editar Vehículo",
-        "finish_service_title": "Finalizar Service",
+        "finish_service_title": "Finalizar Servicio",
         "delete_title": "¿Estás seguro?",
         "delete_vehicle_desc": "Esta acción es irreversible. Se eliminará el vehículo y todo su historial.",
         "delete_maintenance_desc": "Esta acción es irreversible. Se eliminará el registro de mantenimiento.",
@@ -126,7 +126,7 @@
         "save_changes": "Guardar Cambios",
         "finish_confirm": "Confirmar Finalización",
         "finishing": "Finalizando...",
-        "no_expenses_warning": "Este service no tiene gastos registrados. Por favor, ingresa el costo final mano a mano.",
+        "no_expenses_warning": "Este servicio no tiene gastos registrados. Por favor, ingresa el costo final mano a mano.",
         "final_cost_real": "Costo Final Real",
         "identification": "Identificación",
         "manufacture_year": "Año Fabricación",
@@ -134,12 +134,13 @@
         "model": "Modelo",
         "current_odometer": "Odómetro Actual",
         "maintenance_plan": "Plan de Mantenimiento",
-        "next_service": "Próximo Service (KM)",
+        "next_service": "Próximo Servicio (KM)",
         "type": "Tipo",
         "cost": "Costo",
         "spare_part": "Repuesto",
         "labor": "Mano de Obra",
-        "other": "Otro"
+        "other": "Otro",
+        "confirm_action": "Confirmar"
     },
     "dashboard": {
         "title_highlight": "de Flota",

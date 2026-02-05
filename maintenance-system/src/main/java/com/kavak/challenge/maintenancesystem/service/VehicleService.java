@@ -61,12 +61,18 @@ public class VehicleService {
     }
 
     public boolean isAvailable(Vehicle vehicle) {
+        if (vehicle.getMaintenances() == null) {
+            return true;
+        }
         return vehicle.getMaintenances().stream()
                 .noneMatch(m -> m.getEstado() == MaintenanceStatus.PENDIENTE ||
                         m.getEstado() == MaintenanceStatus.EN_PROCESO);
     }
 
     public Double calculateTotalCost(Vehicle vehicle) {
+        if (vehicle.getMaintenances() == null) {
+            return 0.0;
+        }
         return vehicle.getMaintenances().stream()
                 .filter(m -> m.getEstado() == MaintenanceStatus.COMPLETADO)
                 .mapToDouble(m -> m.getCostoFinal() != null ? m.getCostoFinal() : 0.0)

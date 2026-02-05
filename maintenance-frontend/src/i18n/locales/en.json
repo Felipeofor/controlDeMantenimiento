@@ -138,7 +138,8 @@
         "cost": "Cost",
         "spare_part": "Spare Part",
         "labor": "Labor",
-        "other": "Other"
+        "other": "Other",
+        "confirm_action": "Confirm"
     },
     "dashboard": {
         "title_highlight": "Intelligence",
