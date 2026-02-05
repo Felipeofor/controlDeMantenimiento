@@ -49,6 +49,22 @@ Originalmente un desafío técnico, ha sido re-arquitectado en una plataforma **
 
 ---
 
+## 🚀 Ejecución en Paralelo (Los 3 Proyectos)
+
+Para levantar los tres proyectos (Salud, Mantenimiento e HiYappa) simultáneamente sin conflictos de puertos, puedes usar el script automatizado:
+
+### Windows (PowerShell)
+```powershell
+./levantar-todo.ps1
+```
+
+Este script abrirá ventanas de terminal independientes para cada servicio:
+*   **Salud**: Frontend (:3000) | Backend (:8081)
+*   **Mantenimiento**: Frontend (:5173) | Backend (:8080)
+*   **HiYappa**: Fullstack (:3005)
+
+---
+
 ## 🚀 Comenzando
 
 ### 1. Configuración del Backend
